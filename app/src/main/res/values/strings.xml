@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ChickenNeckBlog</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">鸡腿博客</string>
+    <string name="nav_header_subtitle">uid: 10001</string>
+    <string name="action_search">搜索</string>
+
+    <string name="drawer_follow">关注</string>
+    <string name="drawer_selected">精选</string>
+</resources>

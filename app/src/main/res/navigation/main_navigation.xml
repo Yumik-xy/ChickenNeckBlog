@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_selected">
+
+    <fragment
+        android:id="@+id/nav_selected"
+        android:name="com.yumik.chickenneckblog.ui.main.fragment.selected.SelectedFragment"
+        tools:layout="@layout/selected_fragment" >
+        <action
+            android:id="@+id/action_nav_selected_to_nav_search"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_follow"
+        android:name="com.yumik.chickenneckblog.ui.main.fragment.follow.FollowFragment"
+        tools:layout="@layout/follow_fragment" >
+        <action
+            android:id="@+id/action_nav_article_to_nav_search"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_user"
+        android:name="com.yumik.chickenneckblog.ui.main.fragment.user.UserFragment"
+        tools:layout="@layout/user_fragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.yumik.chickenneckblog.ui.main.fragment.settings.SettingsFragment"
+        tools:layout="@layout/settings_fragment"/>
+
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="com.yumik.chickenneckblog.ui.main.fragment.search.SearchFragment"
+        tools:layout="@layout/search_fragment"/>
+
+</navigation>

@@ -1,0 +1,3 @@
+include ':mRecyclerView'
+include ':app'
+rootProject.name = "ChickenNeckBlog"
