@@ -17,6 +17,10 @@ object Repository {
         ProjectNetwork.getSelectedArticle(page, token)
     }
 
+    fun getArticle(id: Int) = fire(Dispatchers.IO) {
+        ProjectNetwork.getArticle(id)
+    }
+
     fun login(bean: UserLoginBean) = fire(Dispatchers.IO) {
         ProjectNetwork.login(bean)
     }

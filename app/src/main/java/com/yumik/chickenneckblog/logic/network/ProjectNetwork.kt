@@ -15,12 +15,16 @@ object ProjectNetwork {
 
     //    创建了接口的动态代理对象
     private val selectedArticleService = ServiceCreator.create(SelectedArticleNetwork::class.java)
+    private val articleService = ServiceCreator.create(ArticleNetwork::class.java)
     private val loginService = ServiceCreator.create(LoginNetwork::class.java)
     private val searchService = ServiceCreator.create(SearchNetwork::class.java)
 
     //    定义接口内容
     suspend fun getSelectedArticle(page: Int, token: String) =
         selectedArticleService.getSelectedArticle(page, token).await()
+
+    suspend fun getArticle(id: Int) =
+        articleService.getArticle(id).await()
 
     suspend fun login(bean: UserLoginBean) = loginService.login(bean).await()
     suspend fun loginByToken(bean: TokenLoginBean) = loginService.loginByToken(bean).await()

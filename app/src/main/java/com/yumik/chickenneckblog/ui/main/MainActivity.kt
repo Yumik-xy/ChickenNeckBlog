@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
     private lateinit var navHeadView: View
-    private lateinit var searchFragment: SearchFragment
     private lateinit var searchView: SearchView
 
 
@@ -110,9 +109,6 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-        searchFragment = SearchFragment()
-
         navHeadView = navView.inflateHeaderView(R.layout.nav_header_main)
         navHeadView.findViewById<ImageView>(R.id.avatarImageView).setOnClickListener {
             if (ProjectApplication.token == "") {
@@ -126,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         ProjectApplication.loginStateLiveData.observe(this, {
-            toolbar.showSnackbar("登陆成功")
+            toolbar.showSnackbar("登录成功")
             navHeadView.apply {
                 val avatarImageView = findViewById<ImageView>(R.id.avatarImageView)
                 Glide.with(avatarImageView)

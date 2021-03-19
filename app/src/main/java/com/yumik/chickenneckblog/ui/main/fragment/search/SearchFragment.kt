@@ -13,6 +13,7 @@ import com.google.android.material.chip.ChipGroup
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.main.MainActivity
+import com.yumik.chickenneckblog.ui.main.fragment.adapter.ArticleItemAdapter
 import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.SearchFunction.getClassify
 import com.yumik.chickenneckblog.utils.SearchFunction.getSortOrder
@@ -30,7 +31,7 @@ class SearchFragment : Fragment() {
     private var searchHistory by SPUtil(ProjectApplication.context, "search_history", "")
 
     private lateinit var viewModel: SearchViewModel
-    private lateinit var adapter: SearchAdapter
+    private lateinit var adapter: ArticleItemAdapter
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var filterChipGroup: ChipGroup
@@ -54,7 +55,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun initView() {
-        adapter = SearchAdapter(requireContext())
+        adapter = ArticleItemAdapter(requireContext())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
@@ -63,7 +64,7 @@ class SearchFragment : Fragment() {
             if (success != null) {
                 if (success.data != null && success.code == 200) {
                     val data = success.data
-                    adapter.reAddAll(data.articleList)
+                    adapter.reAddAll(data.searchList)
                 } else {
                     recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
                 }
@@ -72,23 +73,18 @@ class SearchFragment : Fragment() {
             }
         }
         ProjectApplication.searchLiveData.observe(viewLifecycleOwner, {
-            searchHistory = it
-            viewModel.searchArticleList(
-                it,
-                getSearchItem(),
-                getSortOrder(sortOrderChip.text as String).toString()
-            )
-        })
-        sortOrderChip.setOnClickListener {
-            sortOrderChip.text = swapSortOrder(sortOrderChip.text as String)
-            val value = ProjectApplication.searchLiveData.value
-            if (!value.isNullOrEmpty()) {
+            if (!it.isNullOrEmpty()) {
+                searchHistory = it
                 viewModel.searchArticleList(
-                    value,
+                    it,
                     getSearchItem(),
                     getSortOrder(sortOrderChip.text as String).toString()
                 )
+                ProjectApplication.searchLiveData.value = null
             }
+        })
+        sortOrderChip.setOnClickListener {
+            sortOrderChip.text = swapSortOrder(sortOrderChip.text as String)
         }
     }
 

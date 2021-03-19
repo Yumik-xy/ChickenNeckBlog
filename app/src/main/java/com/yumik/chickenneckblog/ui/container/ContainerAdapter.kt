@@ -15,7 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.R
-import com.yumik.chickenneckblog.logic.model.SelectedComment
+import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.formatTime
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
@@ -35,7 +35,8 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
 
         lateinit var footTextView: TextView
         lateinit var footLayout: LinearLayout
-        lateinit var footProgressBar: androidx.core.widget.ContentLoadingProgressBar
+
+        //        lateinit var footProgressBar: ContentLoadingProgressBar
         lateinit var userPictureImageView: ImageView
         lateinit var userNameTextView: TextView
         lateinit var createTimeTextView: TextView
@@ -45,9 +46,9 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
             if (viewType == FOOT_VIEW) {
                 footTextView = view.findViewById(R.id.footTextView)
                 footLayout = view.findViewById(R.id.footLayout)
-                footProgressBar =
-                    view.findViewById(R.id.footProgressBar)
-                footProgressBar.hide()
+//                footProgressBar =
+//                    view.findViewById(R.id.footProgressBar)
+//                footProgressBar.hide()
             } else {
                 userPictureImageView = view.findViewById(R.id.userPictureImageView)
                 userNameTextView = view.findViewById(R.id.userNameTextView)
@@ -57,46 +58,38 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
         }
     }
 
-//    inner class ReplyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-//        val userPictureImageView: ImageView = view.findViewById(R.id.userPictureImageView)
-//        val userNameTextView: TextView = view.findViewById(R.id.userNameTextView)
-//        val createTimeTextView: TextView = view.findViewById(R.id.createTimeTextView)
-//        val commentTextView: TextView = view.findViewById(R.id.commentTextView)
-//        val loadMoreTextView: TextView = view.findViewById(R.id.loadMoreTextView)
-//    }
-
     private val list =
         SortedList(
-            SelectedComment::class.java,
-            object : SortedListAdapterCallback<SelectedComment>(this) {
-                override fun compare(o1: SelectedComment, o2: SelectedComment): Int {
+            Comment::class.java,
+            object : SortedListAdapterCallback<Comment>(this) {
+                override fun compare(o1: Comment, o2: Comment): Int {
                     return o1.id.compareTo(o2.id)
                 }
 
                 override fun areContentsTheSame(
-                    oldItem: SelectedComment,
-                    newItem: SelectedComment
+                    oldItem: Comment,
+                    newItem: Comment
                 ): Boolean {
                     return oldItem == newItem
                 }
 
                 override fun areItemsTheSame(
-                    item1: SelectedComment,
-                    item2: SelectedComment
+                    item1: Comment,
+                    item2: Comment
                 ): Boolean {
                     return item1.id == item2.id
                 }
             })
 
-    fun addAll(selectedComment: SelectedComment) {
-        list.add(selectedComment)
+    fun add(Comment: Comment) {
+        list.add(Comment)
     }
 
-    fun addAll(list: List<SelectedComment>) {
+    fun addAll(list: List<Comment>) {
         this.list.addAll(list)
     }
 
-    fun reAddAll(list: List<SelectedComment>) {
+    fun reAddAll(list: List<Comment>) {
         this.list.clear()
         this.list.addAll(list)
     }
@@ -122,6 +115,9 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
                     userPictureImageView.visibility = View.VISIBLE
                     Glide.with(userPictureImageView.context)
                         .load(item.userPicture)
+                        .placeholder(R.drawable.ic_drawer_user)
+                        .error(R.drawable.ic_image_error)
+                        .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .transform(CenterInside(), CircleCrop())
                         .into(userPictureImageView)
@@ -129,7 +125,7 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
             }
         } else {
             holder.apply {
-                footTextView.text = "查看所有评论　>"
+                footTextView.text = if (list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
             }
         }
     }
@@ -143,21 +139,13 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
             }
             return holder
         } else {
-            val root = LayoutInflater.from(context).inflate(R.layout.item_foot_view, parent, false)
+            val root = LayoutInflater.from(context).inflate(R.layout.item_foot_more, parent, false)
             val holder = CommentViewHolder(root, viewType)
             root.setOnClickListener {
                 block?.invoke()
             }
             footHolder = holder
             return holder
-        }
-    }
-
-    fun setFootView() {
-        footHolder?.let {
-            it.footTextView.text
-            it.footLayout.visibility = View.VISIBLE
-            it.footProgressBar.show()
         }
     }
 }

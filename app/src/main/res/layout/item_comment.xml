@@ -1,69 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:orientation="vertical"
-    android:paddingStart="12dp"
+    android:orientation="horizontal"
+    android:paddingStart="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
     android:paddingEnd="12dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp">
+    <ImageView
+        android:id="@+id/userPictureImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp" />
 
-        <ImageView
-            android:id="@+id/userPictureImageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="itemCommentLogo" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/userNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="User Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/primary" />
+
+        <TextView
+            android:id="@+id/createTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="20/01/2020"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/commentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Content Content Content Content Content Content Content Content Content Content Content."
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textSize="15sp" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/userNameTextView"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="User Name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/primary" />
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/createTimeTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="20/01/2020"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textSize="12sp" />
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/commentTextView"
-                android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/agreeImageView"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_agree"
+                        android:visibility="gone"
+                        app:tint="@color/secondary" />
+
+                    <ImageView
+                        android:id="@+id/notAgreeImageView"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_agree"
+                        app:tint="@color/unCheck" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="200"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Content Content Content Content Content Content Content Content Content Content Content."
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textSize="15sp" />
+                android:layout_marginStart="16dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/disagreeImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_disagree"
+                    android:visibility="gone"
+                    app:tint="@color/secondary" />
+
+                <ImageView
+                    android:id="@+id/notDisagreeImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_disagree"
+                    app:tint="@color/unCheck" />
+
+            </FrameLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
 
         </LinearLayout>
 
     </LinearLayout>
-
-    <!--    <View-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="1dp"-->
-    <!--        android:background="?android:attr/listDivider" />-->
 
 </LinearLayout>

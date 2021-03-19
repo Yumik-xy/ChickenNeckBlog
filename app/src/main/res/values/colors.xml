@@ -12,4 +12,7 @@
     <color name="disable_text">#80344955</color>
     <color name="enable_text">@color/secondary</color>
 
+    <color name="unCheck">#BFBFBF</color>
+    <color name="unCheck_dark">#737373</color>
+
 </resources>

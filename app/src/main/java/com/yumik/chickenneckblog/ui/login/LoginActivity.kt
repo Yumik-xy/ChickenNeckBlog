@@ -83,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
                 view.showSnackbar("用户名或密码不能为空！")
             } else {
                 viewModel.loginUser(
-                    user,
+                    userEditText.text.toString(),
                     passwordEditText.text.toString().getMD5()
                 )
             }

@@ -25,7 +25,9 @@ class CommentAdapter(private val context: Context, private val articleId: Int) :
     companion object {
         private const val NORMAL_VIEW = 10000
         private const val FOOT_VIEW = 10001
-
+        private const val FOOT_TEXT_NORMAL = "查看所有评论　>"
+        private const val FOOT_TEXT_LOADING = "正在加载评论"
+        private const val FOOT_TEXT_NO_MORE = "没有更多评论了"
         private const val TAG = "CommentAdapter"
     }
 
@@ -115,6 +117,9 @@ class CommentAdapter(private val context: Context, private val articleId: Int) :
                     userPictureImageView.visibility = View.VISIBLE
                     Glide.with(userPictureImageView.context)
                         .load(item.userPicture)
+                        .placeholder(R.drawable.ic_drawer_user)
+                        .error(R.drawable.ic_image_error)
+                        .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .transform(CenterInside(), CircleCrop())
                         .into(userPictureImageView)
@@ -138,14 +143,22 @@ class CommentAdapter(private val context: Context, private val articleId: Int) :
             val holder = CommentViewHolder(root, viewType)
             return holder
         } else {
-            val root = LayoutInflater.from(context).inflate(R.layout.item_foot_view, parent, false)
+            val root = LayoutInflater.from(context).inflate(R.layout.item_foot_more, parent, false)
             val holder = CommentViewHolder(root, viewType)
             footHolder = holder
             return holder
         }
     }
 
-    fun setFootView() {
+    fun startLoading() {
+        footHolder?.let {
+            it.footTextView.text
+            it.footLayout.visibility = View.VISIBLE
+            it.footProgressBar.show()
+        }
+    }
+
+    fun stopLoading() {
         footHolder?.let {
             it.footTextView.text
             it.footLayout.visibility = View.VISIBLE

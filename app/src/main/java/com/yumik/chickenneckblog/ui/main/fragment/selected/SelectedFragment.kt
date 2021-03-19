@@ -1,6 +1,7 @@
 package com.yumik.chickenneckblog.ui.main.fragment.selected
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.ui.main.fragment.adapter.ArticleItemAdapter
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import java.util.*
@@ -30,7 +32,7 @@ class SelectedFragment : Fragment() {
     private var totalPage = Int.MAX_VALUE
 
     private lateinit var viewModel: SelectedViewModel
-    private lateinit var adapter: SelectedAdapter
+    private lateinit var adapter: ArticleItemAdapter
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
@@ -62,8 +64,7 @@ class SelectedFragment : Fragment() {
             view.showSnackbar("Replace with your own action", "Done", Snackbar.LENGTH_LONG)
         }
         //        绑定recyclerView的adapter
-        adapter = SelectedAdapter(requireContext())
-
+        adapter = ArticleItemAdapter(requireContext())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
@@ -109,7 +110,7 @@ class SelectedFragment : Fragment() {
             }
         }
 
-        ProjectApplication.loginStateLiveData.observe(this, {
+        ProjectApplication.loginStateLiveData.observe(viewLifecycleOwner, {
             refreshList()
         })
     }

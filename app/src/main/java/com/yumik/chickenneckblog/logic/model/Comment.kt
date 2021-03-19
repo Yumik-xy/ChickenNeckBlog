@@ -6,4 +6,7 @@ data class Comment(
     val userName: String,
     val createTime: Long,
     val content: String,
+    val agree: Int,
+    val agreeNumber: Int,
+    val commentList: List<Comment>?
 )

@@ -1,6 +1,6 @@
 package com.yumik.chickenneckblog.logic.network
 
-import com.yumik.chickenneckblog.logic.response.ArticleResponse
+import com.yumik.chickenneckblog.logic.response.SearchResponse
 import com.yumik.chickenneckblog.logic.response.BaseResponse
 import retrofit2.Call
 import retrofit2.http.GET
@@ -11,6 +11,6 @@ interface SearchNetwork {
     fun getSelectedArticle(
         @Query("search") search: String,
         @Query("classify") classify: String,
-        @Query("sortOrder") sortOrder: String
-    ): Call<BaseResponse<ArticleResponse>>
+        @Query("sortOrder") sortOrder: String,
+    ): Call<BaseResponse<SearchResponse>>
 }

@@ -8,7 +8,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_selected"
-            android:icon="@drawable/ic_drawer_grade"
+            android:icon="@drawable/ic_drawer_loved"
             android:title="@string/drawer_selected" />
         <item
             android:id="@+id/nav_follow"

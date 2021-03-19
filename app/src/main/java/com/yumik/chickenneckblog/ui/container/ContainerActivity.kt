@@ -3,13 +3,12 @@ package com.yumik.chickenneckblog.ui.container
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -17,11 +16,18 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterInside
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.google.android.material.appbar.AppBarLayout
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.container.comment.CommentActivity
+import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.MarkdownEscape.escape
+import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import kotlin.properties.Delegates
+
 
 class ContainerActivity : AppCompatActivity() {
 
@@ -35,12 +41,24 @@ class ContainerActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
 
     private lateinit var toolbar: Toolbar
-    private lateinit var toolbarLayout: CollapsingToolbarLayout
+    private lateinit var appBar: AppBarLayout
+    private lateinit var toolbarContainer: LinearLayout
+    private lateinit var authorPictureImageView: ImageView
+    private lateinit var authorTextView: TextView
+    private lateinit var followTextView: TextView
+    private lateinit var authorIntroductionTextView: TextView
+    private lateinit var favouriteImageView: ImageView
+    private lateinit var disFavouriteImageView: ImageView
+    private lateinit var favouriteTextView: TextView
+    private lateinit var markImageView: ImageView
+    private lateinit var unMarkImageView: ImageView
+    private lateinit var markTextView: TextView
+    private lateinit var commentTextView: TextView
 
     private lateinit var webView: WebView
+    var markdown = ""
+
     private lateinit var nestedScrollView: NestedScrollView
-    private lateinit var postTextView: TextView
-    private lateinit var commentEditText: EditText
 
     private var articleId by Delegates.notNull<Int>()
 
@@ -52,14 +70,24 @@ class ContainerActivity : AppCompatActivity() {
 //        android:windowSoftInputMode="adjustResize" //非全屏模式下使用 包含webView情况下
         viewModel = ViewModelProvider(this).get(ContainerViewModel::class.java)
         recyclerView = findViewById(R.id.recyclerView)
-
         toolbar = findViewById(R.id.toolbar)
-        toolbarLayout = findViewById(R.id.toolbar_layout)
-//        fab = findViewById(R.id.fab)
+        appBar = findViewById(R.id.appBar)
+        toolbarContainer = findViewById(R.id.toolbarContainer)
         webView = findViewById(R.id.webView)
         nestedScrollView = findViewById(R.id.nestedScrollView)
-        postTextView = findViewById(R.id.postTextView)
-        commentEditText = findViewById(R.id.commentEditText)
+
+        authorPictureImageView = findViewById(R.id.authorPictureImageView)
+        authorTextView = findViewById(R.id.authorTextView)
+        followTextView = findViewById(R.id.followTextView)
+        authorIntroductionTextView = findViewById(R.id.authorIntroductionTextView)
+        favouriteImageView = findViewById(R.id.favouriteImageView)
+        disFavouriteImageView = findViewById(R.id.disFavouriteImageView)
+        favouriteTextView = findViewById(R.id.favouriteTextView)
+        markImageView = findViewById(R.id.markImageView)
+        unMarkImageView = findViewById(R.id.unMarkImageView)
+        markTextView = findViewById(R.id.markTextView)
+        commentTextView = findViewById(R.id.commentTextView)
+
 
         articleId = intent.getIntExtra("article_id", 0)
 
@@ -83,7 +111,7 @@ class ContainerActivity : AppCompatActivity() {
             it.setHomeButtonEnabled(true)
             it.setDisplayHomeAsUpEnabled(true)
         }
-        toolbarLayout.title = ""
+        toolbar.title = "title"
         toolbar.setOnClickListener {
             nestedScrollView.smoothScrollTo(0, 0)
         }
@@ -96,74 +124,10 @@ class ContainerActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                val markdown = "# sduContentionCourse\n" +
-                        "\n" +
-                        "## 山东大学选课\n" +
-                        "\n" +
-                        "### 使用方法\n" +
-                        "\n" +
-                        "1. 在chrome进入本科生选课系统登录后，按F12点击console\n" +
-                        "\n" +
-                        "2. 打开代码1.js 前两行的两个数组表示存放抢课的课程号课序号，也是唯一一个需要修改的地方\n" +
-                        "\n" +
-                        "   例如：\n" +
-                        "\n" +
-                        "   ```js\n" +
-                        "   var kch = ['sd07517110', 'sd07510180'];\n" +
-                        "   var kxh = ['600', '600'];\n" +
-                        "   ```\n" +
-                        "\n" +
-                        "   表示需要抢课程号sd07517110课序号600的课 以及 课程号sd07510180课序号600的课  \n" +
-                        "\n" +
-                        "3. 将修改后的代码粘贴到chrome的console里面，回车执行 \n" +
-                        "4. 由于存在教务老师突然添加或者删除课程的情况，每次运行需要**约一分钟的初始化**来读取课程列表，读取完成后会在命令行输出\"读取完成\"并自动开始抢课。\n" +
-                        "5. **终止方法**：F5刷新即可\n" +
-                        "\n" +
-                        "p.s. 默认抢课速度300ms/次\n" +
-                        "\n" +
-                        "waring:为了人类之间的和平，为了不整垮学校服务器，请不要把频率调的太高！\n" +
-                        "\n" +
-                        "如果发现抢的课不对，一般为教务老师突然添加或删除课程导致课程列表发生变化，请刷新页面-退课-重新执行脚本。\n" +
-                        "\n" +
-                        "由于调试时Chrome会缓存所有的请求, 会造成Chrome占用大量的内存, 解决方案是NetWork-> Ctrl+E\n" +
-                        "\n" +
-                        "## 山东大学自动评价\n" +
-                        "\n" +
-                        "### 使用方法\n" +
-                        "\n" +
-                        "1. 在chrome进入本科生选课系统登录后，按F12点击console\n" +
-                        "\n" +
-                        "2. 打开代码2.js, 复制代码 , 粘贴到chrome的console里面，回车执行 \n" +
-                        "\n" +
-                        "3. 2s执行一条\n"
-                webView.evaluateJavascript("setMarkdown(\"" + markdown.escape() + "\")") {
-                }
+                webView.evaluateJavascript("setMarkdown(\"" + markdown.escape() + "\")") {}
             }
         }
-
-//        postTextView.setOnClickListener {
-//
-//        }
-
-//        commentEditText.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-//            override fun afterTextChanged(s: Editable?) {
-//                if (s != null && s.length >= 8) {
-//                    postTextView.apply {
-//                        setTextColor(resources.getColor(R.color.enable_text, resources.newTheme()))
-//                        isEnabled = true
-//                        isClickable = true
-//                    }
-//                } else {
-//                    postTextView.apply {
-//                        setTextColor(resources.getColor(R.color.disable_text, resources.newTheme()))
-//                        isEnabled = false
-//                        isClickable = false
-//                    }
-//                }
-//            }
-//        })
+//        webView.setBackgroundColor(0)
 
         adapter = ContainerAdapter(this) {
             print("recyclerView")
@@ -174,11 +138,53 @@ class ContainerActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
+        viewModel.getArticle(articleId)
+        viewModel.articleListLiveData.observe(this, {
+            val success = it.getOrNull()
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    markdown = data.container
+                    webView.evaluateJavascript("setMarkdown(\"" + markdown.escape() + "\")") {}
+                    Glide.with(authorPictureImageView.context)
+                        .load(data.authorPicture)
+                        .placeholder(R.drawable.ic_drawer_user)
+                        .error(R.drawable.ic_image_error)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .transform(CenterInside(), CircleCrop())
+                        .into(authorPictureImageView)
+                    authorTextView.text = data.authorName
+//                    authorIntroductionTextView = data.authorIntroduction
+                    markTextView.text = data.markedNumber.format()
+                    if (data.marked) {
+                        markImageView.visibility = View.VISIBLE
+                        unMarkImageView.visibility = View.GONE
+                    } else {
+                        markImageView.visibility = View.GONE
+                        unMarkImageView.visibility = View.VISIBLE
+                    }
+                    favouriteTextView.text = data.favoriteNumber.format()
+                    if (data.marked) {
+                        favouriteImageView.visibility = View.VISIBLE
+                        disFavouriteImageView.visibility = View.GONE
+                    } else {
+                        favouriteImageView.visibility = View.GONE
+                        disFavouriteImageView.visibility = View.VISIBLE
+                    }
+                    commentTextView.text = data.commentNumber.format()
 
-        viewModel.selectedCommentListLiveData.observe(this, {
-            Log.d(TAG, it.toString())
-            adapter.addAll(it)
+
+
+                    if (data.commentList != null) {
+                        adapter.addAll(data.commentList)
+                    }
+                } else {
+                    recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
+                }
+            } else {
+                recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
+            }
         })
-
     }
 }

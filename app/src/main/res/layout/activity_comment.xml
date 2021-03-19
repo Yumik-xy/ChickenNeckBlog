@@ -67,7 +67,7 @@
             android:id="@+id/postTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
+            android:padding="12dp"
             android:background="?android:selectableItemBackgroundBorderless"
             android:clickable="false"
             android:enabled="true"

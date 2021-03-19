@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.ui.main.fragment.adapter.ArticleItemAdapter
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 
 
@@ -51,7 +52,7 @@ class FollowFragment : Fragment() {
         adapter = FollowAdapter(viewModel.articleList)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
-        viewModel.articleListLiveData.observe(viewLifecycleOwner, {
+        viewModel.articleItemListLiveData.observe(viewLifecycleOwner, {
             viewModel.articleList.clear()
             viewModel.articleList.addAll(it)
         })

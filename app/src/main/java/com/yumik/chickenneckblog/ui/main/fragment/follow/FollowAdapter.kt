@@ -16,17 +16,18 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.yumik.chickenneckblog.R
-import com.yumik.chickenneckblog.logic.model.Article
+import com.yumik.chickenneckblog.logic.model.ArticleItem
+import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.formatTime
 
-class FollowAdapter(private val articleList: List<Article>) :
+class FollowAdapter(private val articleItemList: List<ArticleItem>) :
     RecyclerView.Adapter<FollowAdapter.ViewHolder>() {
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleTextView: TextView = view.findViewById(R.id.titleTextView)
         val containerTextView: TextView = view.findViewById(R.id.containerTextView)
         val countTextView: TextView = view.findViewById(R.id.idTextView)
         val timeTextView: TextView = view.findViewById(R.id.timeTextView)
-        val loveNumberTextView: TextView = view.findViewById(R.id.loveNumberTextView)
+        val loveNumberTextView: TextView = view.findViewById(R.id.favoriteNumberTextView)
         val readNumberTextView: TextView = view.findViewById(R.id.readNumberTextView)
         val backgroundImageView: ImageView = view.findViewById(R.id.backgroundImageView)
         val authorTextView: TextView = view.findViewById(R.id.authorTextView)
@@ -41,13 +42,13 @@ class FollowAdapter(private val articleList: List<Article>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val article = articleList[position]
+        val article = articleItemList[position]
         holder.titleTextView.text = article.title
         holder.containerTextView.text = article.container
         holder.countTextView.text = (position + 1).toString().padStart(2, '0')
         holder.timeTextView.text = article.time.formatTime()
-        holder.loveNumberTextView.text = "${article.loveNumber}"
-        holder.readNumberTextView.text = "${article.readNumber}"
+        holder.loveNumberTextView.text = article.favoriteNumber.format()
+        holder.readNumberTextView.text = article.readNumber.format()
         holder.authorTextView.text = article.authorName
         Glide.with(holder.backgroundImageView.context)
             .load(article.image)
@@ -105,5 +106,5 @@ class FollowAdapter(private val articleList: List<Article>) :
             .into(holder.authorImageView)
     }
 
-    override fun getItemCount(): Int = articleList.size
+    override fun getItemCount(): Int = articleItemList.size
 }
