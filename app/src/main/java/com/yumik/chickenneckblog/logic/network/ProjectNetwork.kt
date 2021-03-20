@@ -1,6 +1,7 @@
 package com.yumik.chickenneckblog.logic.network
 
 import android.util.Log
+import com.yumik.chickenneckblog.logic.bean.CommentBean
 import com.yumik.chickenneckblog.logic.bean.SearchBean
 import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
 import com.yumik.chickenneckblog.logic.bean.UserLoginBean
@@ -18,6 +19,7 @@ object ProjectNetwork {
     private val articleService = ServiceCreator.create(ArticleNetwork::class.java)
     private val loginService = ServiceCreator.create(LoginNetwork::class.java)
     private val searchService = ServiceCreator.create(SearchNetwork::class.java)
+    private val commentNetwork = ServiceCreator.create(CommentNetwork::class.java)
 
     //    定义接口内容
     suspend fun getSelectedArticle(page: Int, token: String) =
@@ -31,6 +33,13 @@ object ProjectNetwork {
 
     suspend fun getSelectedArticle(bean: SearchBean) =
         searchService.getSelectedArticle(bean.search, bean.classify, bean.sortOrder).await()
+
+    suspend fun getComment(bean: CommentBean) =
+        commentNetwork.getComment(bean.article, bean.page).await()
+
+    suspend fun getSecondaryComment(bean: CommentBean) =
+        commentNetwork.getSecondaryComment(bean.article, bean.commentId, bean.page).await()
+
 
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->

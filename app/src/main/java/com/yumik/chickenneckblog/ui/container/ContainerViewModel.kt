@@ -16,4 +16,15 @@ class ContainerViewModel : ViewModel() {
         _articleListLiveData.value = articleId
     }
 
+    fun setFollow(authorId :Int){
+
+    }
+
+    fun setFavourite(articleId: Int) {
+
+    }
+
+    fun setMark(articleId: Int){
+
+    }
 }

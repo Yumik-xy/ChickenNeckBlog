@@ -21,6 +21,7 @@ import com.yumik.chickenneckblog.logic.model.ArticleItem
 import com.yumik.chickenneckblog.ui.container.ContainerActivity
 import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.formatTime
+import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 class ArticleItemAdapter(private val context: Context) :
     RecyclerView.Adapter<ArticleItemAdapter.ViewHolder>() {
@@ -78,7 +79,7 @@ class ArticleItemAdapter(private val context: Context) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val article = articleList[position]
         holder.apply {
-            container.setOnClickListener {
+            container.setOnUnShakeClickListener {
                 val intent = Intent(context, ContainerActivity::class.java)
                 intent.putExtra("article_id", article.id)
                 context.startActivity(intent)

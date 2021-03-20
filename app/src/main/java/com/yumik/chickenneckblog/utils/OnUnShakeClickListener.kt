@@ -11,7 +11,7 @@ abstract class OnUnShakeClickListener : View.OnClickListener {
 
     private var lastClickTime: Long = 0
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View) {
         val nowClickTime: Long = Date().time
         if (nowClickTime - lastClickTime > DELAY_TIME) {
             lastClickTime = nowClickTime
@@ -19,13 +19,13 @@ abstract class OnUnShakeClickListener : View.OnClickListener {
         }
     }
 
-    abstract fun onSharkClick(v: View?)
+    abstract fun onSharkClick(v: View)
 }
 
-fun View.setOnUnShakeClickListener(block: () -> Unit) {
+fun View.setOnUnShakeClickListener(block: (View) -> Unit) {
     this.setOnClickListener(object : OnUnShakeClickListener() {
-        override fun onSharkClick(v: View?) {
-            block()
+        override fun onSharkClick(v: View) {
+            block(v)
         }
     })
 }

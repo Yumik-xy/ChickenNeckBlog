@@ -126,6 +126,7 @@
             android:paddingEnd="8dp">
 
             <FrameLayout
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -149,9 +150,9 @@
 
             <TextView
                 android:id="@+id/favouriteTextView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="200" />
 
         </LinearLayout>
@@ -170,6 +171,7 @@
             android:paddingEnd="8dp">
 
             <FrameLayout
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -192,9 +194,9 @@
 
             <TextView
                 android:id="@+id/markTextView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="200" />
 
         </LinearLayout>
@@ -217,14 +219,15 @@
                 android:id="@+id/commentImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_gravity="center"
                 android:src="@drawable/ic_comment_outline"
                 app:tint="@color/unCheck_dark" />
 
             <TextView
                 android:id="@+id/commentTextView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="200" />
 
         </LinearLayout>

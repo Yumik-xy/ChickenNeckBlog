@@ -36,7 +36,6 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
         lateinit var footTextView: TextView
         lateinit var footLayout: LinearLayout
 
-        //        lateinit var footProgressBar: ContentLoadingProgressBar
         lateinit var userPictureImageView: ImageView
         lateinit var userNameTextView: TextView
         lateinit var createTimeTextView: TextView
@@ -46,9 +45,6 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
             if (viewType == FOOT_VIEW) {
                 footTextView = view.findViewById(R.id.footTextView)
                 footLayout = view.findViewById(R.id.footLayout)
-//                footProgressBar =
-//                    view.findViewById(R.id.footProgressBar)
-//                footProgressBar.hide()
             } else {
                 userPictureImageView = view.findViewById(R.id.userPictureImageView)
                 userNameTextView = view.findViewById(R.id.userNameTextView)
@@ -83,15 +79,18 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
 
     fun add(Comment: Comment) {
         list.add(Comment)
+        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
     }
 
     fun addAll(list: List<Comment>) {
         this.list.addAll(list)
+        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
     }
 
     fun reAddAll(list: List<Comment>) {
         this.list.clear()
         this.list.addAll(list)
+        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -106,15 +105,15 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
         if (getItemViewType(position) == NORMAL_VIEW) {
             val item = list[position]
             holder.apply {
-                userNameTextView.text = item.userName
+                userNameTextView.text = item.user.name
                 commentTextView.text = item.content
-                createTimeTextView.text = item.createTime.formatTime()
-                if (item.userPicture.isNullOrEmpty()) {
+                createTimeTextView.text = item.time.formatTime()
+                if (item.user.picture.isNullOrEmpty()) {
                     userPictureImageView.visibility = View.GONE
                 } else {
                     userPictureImageView.visibility = View.VISIBLE
                     Glide.with(userPictureImageView.context)
-                        .load(item.userPicture)
+                        .load(item.user.picture)
                         .placeholder(R.drawable.ic_drawer_user)
                         .error(R.drawable.ic_image_error)
                         .thumbnail(0.1f)
@@ -132,7 +131,8 @@ class ContainerAdapter(private val context: Context, private val block: (() -> U
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         if (viewType == NORMAL_VIEW) {
-            val root = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false)
+            val root =
+                LayoutInflater.from(context).inflate(R.layout.item_comment_detail, parent, false)
             val holder = CommentViewHolder(root, viewType)
             root.setOnUnShakeClickListener {
                 block?.invoke()

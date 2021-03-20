@@ -21,12 +21,15 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.android.material.appbar.AppBarLayout
+import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.container.comment.CommentActivity
 import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.MarkdownEscape.escape
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
-import kotlin.properties.Delegates
+import com.yumik.chickenneckblog.utils.TipsUtil.showToast
+import com.yumik.chickenneckblog.utils.formatTime
+import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 
 class ContainerActivity : AppCompatActivity() {
@@ -54,13 +57,18 @@ class ContainerActivity : AppCompatActivity() {
     private lateinit var unMarkImageView: ImageView
     private lateinit var markTextView: TextView
     private lateinit var commentTextView: TextView
+    private lateinit var favoriteLayout: LinearLayout
+    private lateinit var markLinearLayout: LinearLayout
+    private lateinit var commentLinearLayout: LinearLayout
 
     private lateinit var webView: WebView
     var markdown = ""
 
     private lateinit var nestedScrollView: NestedScrollView
 
-    private var articleId by Delegates.notNull<Int>()
+    private var articleId = -1
+    private var authorId = -1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,9 +95,16 @@ class ContainerActivity : AppCompatActivity() {
         unMarkImageView = findViewById(R.id.unMarkImageView)
         markTextView = findViewById(R.id.markTextView)
         commentTextView = findViewById(R.id.commentTextView)
+        favoriteLayout = findViewById(R.id.favoriteLayout)
+        markLinearLayout = findViewById(R.id.markLinearLayout)
+        commentLinearLayout = findViewById(R.id.commentLinearLayout)
 
 
         articleId = intent.getIntExtra("article_id", 0)
+        if (articleId == -1) {
+            "该文章无法访问，请检查网络或联系管理！".showToast(ProjectApplication.context)
+            finish()
+        }
 
         initView()
     }
@@ -112,8 +127,10 @@ class ContainerActivity : AppCompatActivity() {
             it.setDisplayHomeAsUpEnabled(true)
         }
         toolbar.title = "title"
-        toolbar.setOnClickListener {
-            nestedScrollView.smoothScrollTo(0, 0)
+        toolbar.setOnUnShakeClickListener {
+            nestedScrollView.post {
+                nestedScrollView.smoothScrollTo(0, 0)
+            }
         }
 
 
@@ -130,7 +147,6 @@ class ContainerActivity : AppCompatActivity() {
 //        webView.setBackgroundColor(0)
 
         adapter = ContainerAdapter(this) {
-            print("recyclerView")
             val intent = Intent(this, CommentActivity::class.java)
             intent.putExtra("article_id", articleId)
             startActivity(intent)
@@ -144,18 +160,21 @@ class ContainerActivity : AppCompatActivity() {
             if (success != null) {
                 if (success.data != null && success.code == 200) {
                     val data = success.data
-                    markdown = data.container
+                    markdown = data.content
                     webView.evaluateJavascript("setMarkdown(\"" + markdown.escape() + "\")") {}
                     Glide.with(authorPictureImageView.context)
-                        .load(data.authorPicture)
+                        .load(data.user.picture)
                         .placeholder(R.drawable.ic_drawer_user)
                         .error(R.drawable.ic_image_error)
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .transform(CenterInside(), CircleCrop())
                         .into(authorPictureImageView)
-                    authorTextView.text = data.authorName
-//                    authorIntroductionTextView = data.authorIntroduction
+                    toolbar.title = data.title
+                    toolbar.subtitle = data.time.formatTime()
+                    authorId = data.user.id
+                    authorTextView.text = data.user.name
+                    authorIntroductionTextView.text = data.user.introduction
                     markTextView.text = data.markedNumber.format()
                     if (data.marked) {
                         markImageView.visibility = View.VISIBLE
@@ -173,12 +192,10 @@ class ContainerActivity : AppCompatActivity() {
                         disFavouriteImageView.visibility = View.VISIBLE
                     }
                     commentTextView.text = data.commentNumber.format()
-
-
-
                     if (data.commentList != null) {
                         adapter.addAll(data.commentList)
                     }
+                    followTextView.text = if (data.followed) "已关注" else "+关注"
                 } else {
                     recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
                 }
@@ -186,5 +203,27 @@ class ContainerActivity : AppCompatActivity() {
                 recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
             }
         })
+
+        favoriteLayout.setOnUnShakeClickListener {
+            viewModel.setFavourite(articleId)
+        }
+
+        markLinearLayout.setOnUnShakeClickListener {
+            viewModel.setMark(articleId)
+        }
+
+        commentLinearLayout.setOnUnShakeClickListener {
+            nestedScrollView.post {
+                nestedScrollView.smoothScrollTo(0, recyclerView.top)
+            }
+        }
+
+        followTextView.setOnUnShakeClickListener {
+            if (authorId != -1) {
+                viewModel.setFollow(authorId)
+            } else {
+                recyclerView.showSnackbar("未获取到用户信息")
+            }
+        }
     }
 }

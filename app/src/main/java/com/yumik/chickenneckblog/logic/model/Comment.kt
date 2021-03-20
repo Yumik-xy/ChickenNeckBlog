@@ -2,11 +2,12 @@ package com.yumik.chickenneckblog.logic.model
 
 data class Comment(
     val id: Int,
-    val userPicture: String,
-    val userName: String,
-    val createTime: Long,
+    val time: Long,
     val content: String,
+    val user: User,
+    val replyTo: User,
     val agree: Int,
     val agreeNumber: Int,
+    val commentNumber: Long,
     val commentList: List<Comment>?
 )

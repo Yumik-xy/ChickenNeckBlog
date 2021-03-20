@@ -92,5 +92,6 @@ dependencies {
     implementation "androidx.paging:paging-rxjava3:$paging_version"
     implementation "androidx.paging:paging-guava:$paging_version"
     implementation "androidx.paging:paging-compose:1.0.0-alpha06"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.31"
 
 }

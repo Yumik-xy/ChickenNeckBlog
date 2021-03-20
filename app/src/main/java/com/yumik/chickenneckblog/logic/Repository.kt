@@ -1,6 +1,7 @@
 package com.yumik.chickenneckblog.logic
 
 import androidx.lifecycle.liveData
+import com.yumik.chickenneckblog.logic.bean.CommentBean
 import com.yumik.chickenneckblog.logic.bean.SearchBean
 import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
 import com.yumik.chickenneckblog.logic.bean.UserLoginBean
@@ -31,6 +32,14 @@ object Repository {
 
     fun getSelectedArticle(bean: SearchBean) = fire(Dispatchers.IO) {
         ProjectNetwork.getSelectedArticle(bean)
+    }
+
+    fun getComment(bean: CommentBean) = fire(Dispatchers.IO) {
+        ProjectNetwork.getComment(bean)
+    }
+
+    fun getSecondaryComment(bean: CommentBean) = fire(Dispatchers.IO) {
+        ProjectNetwork.getSecondaryComment(bean)
     }
 
     private fun <T> fire(context: CoroutineContext, block: suspend () -> BaseResponse<T>) =

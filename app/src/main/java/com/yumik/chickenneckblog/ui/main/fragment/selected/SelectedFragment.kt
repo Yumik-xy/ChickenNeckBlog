@@ -1,7 +1,6 @@
 package com.yumik.chickenneckblog.ui.main.fragment.selected
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +18,7 @@ import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.main.fragment.adapter.ArticleItemAdapter
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
+import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 import java.util.*
 
 class SelectedFragment : Fragment() {
@@ -60,7 +60,7 @@ class SelectedFragment : Fragment() {
     }
 
     private fun initView() {
-        fab.setOnClickListener { view ->
+        fab.setOnUnShakeClickListener { view ->
             view.showSnackbar("Replace with your own action", "Done", Snackbar.LENGTH_LONG)
         }
         //        绑定recyclerView的adapter
@@ -77,7 +77,11 @@ class SelectedFragment : Fragment() {
                     val data = success.data
                     listPage = data.page + 1
                     totalPage = data.totalPage
-                    adapter.addAll(data.articleList)
+                    if (data.page == 1) {
+                        adapter.reAddAll(data.articleList)
+                    } else {
+                        adapter.addAll(data.articleList)
+                    }
                 } else {
                     fab.showSnackbar("${success.message}，错误代码：${success.code}")
                 }
@@ -92,12 +96,14 @@ class SelectedFragment : Fragment() {
         }
         recyclerView.addOnScrollListener(object : OnLoadMoreListener() {
             override fun onLoadMore() {
-                progressBar.visibility = View.VISIBLE
-                viewModel.getSelectedArticleList(listPage)
+                if (listPage <= totalPage) {
+                    progressBar.visibility = View.VISIBLE
+                    viewModel.getSelectedArticleList(listPage)
+                }
             }
         })
         activity?.findViewById<Toolbar>(R.id.toolbar)?.apply {
-            setOnClickListener {
+            setOnUnShakeClickListener {
                 if (Date().time - firstClickTime <= 400) {
                     // Double Click
                     firstClickTime = 0

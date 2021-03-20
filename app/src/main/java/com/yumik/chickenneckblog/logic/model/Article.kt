@@ -3,9 +3,9 @@ package com.yumik.chickenneckblog.logic.model
 data class Article(
     val id: Int,
     val title: String,
-    val container: String,
-    val time: Long, // 暂时没用
-    val readNumber: Long, // 暂时没用
+    val content: String,
+    val time: Long,
+    val readNumber: Long,
     val favoriteNumber: Long,
     val favorite: Boolean,
     val markedNumber: Long,
@@ -13,7 +13,5 @@ data class Article(
     val followed: Boolean,
     val commentNumber: Long,
     val commentList: List<Comment>?,
-    val authorName: String,
-    val authorIntroductionTextView: String,
-    val authorPicture: String?,
+    val user: User
 )

@@ -27,9 +27,9 @@ import com.google.android.material.navigation.NavigationView
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.login.LoginActivity
-import com.yumik.chickenneckblog.ui.main.fragment.search.SearchFragment
 import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
+import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 
 class MainActivity : AppCompatActivity() {
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navHeadView = navView.inflateHeaderView(R.layout.nav_header_main)
-        navHeadView.findViewById<ImageView>(R.id.avatarImageView).setOnClickListener {
+        navHeadView.findViewById<ImageView>(R.id.avatarImageView).setOnUnShakeClickListener {
             if (ProjectApplication.token == "") {
                 val intent = Intent(this, LoginActivity::class.java)
                 intent.putExtra("extra_msg", "现在登录，纵享丝滑！")
@@ -125,13 +125,17 @@ class MainActivity : AppCompatActivity() {
             toolbar.showSnackbar("登录成功")
             navHeadView.apply {
                 val avatarImageView = findViewById<ImageView>(R.id.avatarImageView)
-                Glide.with(avatarImageView)
-                    .load(it.logo)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .transform(CenterInside(), CircleCrop())
-                    .into(avatarImageView)
+                if (it.user.picture != null) {
+                    Glide.with(avatarImageView)
+                        .load(it.user.picture)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .transform(CenterInside(), CircleCrop())
+                        .into(avatarImageView)
+                }
                 val userTextView = findViewById<TextView>(R.id.userTextView)
-                userTextView.text = it.userName
+                userTextView.text = it.user.name
+                val uidTextView = findViewById<TextView>(R.id.uidTextView)
+                uidTextView.text = it.user.id.toString()
             }
         })
     }

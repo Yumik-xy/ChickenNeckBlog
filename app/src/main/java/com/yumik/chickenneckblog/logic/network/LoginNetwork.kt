@@ -1,9 +1,7 @@
 package com.yumik.chickenneckblog.logic.network
 
-import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
 import com.yumik.chickenneckblog.logic.bean.UserLoginBean
-import com.yumik.chickenneckblog.logic.response.ArticleResponse
 import com.yumik.chickenneckblog.logic.response.BaseResponse
 import com.yumik.chickenneckblog.logic.response.LoginResponse
 import retrofit2.Call

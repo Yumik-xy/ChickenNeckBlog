@@ -1,7 +1,8 @@
 package com.yumik.chickenneckblog.logic.response
 
+import com.yumik.chickenneckblog.logic.model.User
+
 data class LoginResponse(
-    val logo: String,
-    val userName: String,
+    val user: User,
     val token: String,
 )

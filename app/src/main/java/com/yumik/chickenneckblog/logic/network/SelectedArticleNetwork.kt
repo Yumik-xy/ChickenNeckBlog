@@ -1,7 +1,6 @@
 package com.yumik.chickenneckblog.logic.network
 
-import com.yumik.chickenneckblog.ProjectApplication
-import com.yumik.chickenneckblog.logic.response.ArticleResponse
+import com.yumik.chickenneckblog.logic.response.ArticleItemResponse
 import com.yumik.chickenneckblog.logic.response.BaseResponse
 import retrofit2.Call
 import retrofit2.http.GET
@@ -13,5 +12,5 @@ interface SelectedArticleNetwork {
     fun getSelectedArticle(
         @Query("page") page: Int,
         @Header("Authorization") Authorization: String
-    ): Call<BaseResponse<ArticleResponse>>
+    ): Call<BaseResponse<ArticleItemResponse>>
 }

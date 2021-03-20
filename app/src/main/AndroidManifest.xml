@@ -20,9 +20,11 @@
         <activity
             android:name=".ui.container.comment.CommentActivity"
             android:theme="@style/Theme.MyApplication.AnimActivity"
+            android:launchMode="standard"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.container.ContainerActivity"
+            android:launchMode="standard"
             android:theme="@style/Theme.MyApplication.AnimActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
