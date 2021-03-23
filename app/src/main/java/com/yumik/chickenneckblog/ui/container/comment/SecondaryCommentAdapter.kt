@@ -56,13 +56,14 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
             }
         }
     }
+    private var allList = 0L
 
     private val list =
         SortedList(
             Comment::class.java,
             object : SortedListAdapterCallback<Comment>(this) {
                 override fun compare(o1: Comment, o2: Comment): Int {
-                    return o1.id.compareTo(o2.id)
+                    return o2.id.compareTo(o1.id)
                 }
 
                 override fun areContentsTheSame(
@@ -80,20 +81,12 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
                 }
             })
 
-    fun add(Comment: Comment) {
-        list.add(Comment)
-        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
-    }
-
-    fun addAll(list: List<Comment>) {
+    fun addAll(
+        list: List<Comment>,
+        allList: Long = list.size.toLong(),
+    ) {
         this.list.addAll(list)
-        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
-    }
-
-    fun reAddAll(list: List<Comment>) {
-        this.list.clear()
-        this.list.addAll(list)
-        footHolder?.footTextView?.text = if (this.list.size() == 0) "马上去抢沙发　>" else "查看所有评论　>"
+        this.allList = allList
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -101,7 +94,7 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
     }
 
     override fun getItemCount(): Int {
-        return if (list.size() == 0) 0 else list.size() + 1
+        return list.size() + 1
     }
 
     @SuppressLint("SetTextI18n")
@@ -110,7 +103,7 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
             val item = list[position]
             holder.apply {
                 userNameTextView.text = item.user.name
-                replyToNameTextView.text = item.replyTo.name
+                replyToNameTextView.text = "@${item.replyTo.name}"
                 commentTextView.text = item.content
                 createTimeTextView.text = item.time.formatTime()
                 if (item.user.picture.isNullOrEmpty()) {
@@ -129,7 +122,7 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
             }
         } else {
             holder.apply {
-                footTextView.text = "点击查看${list.size()}条评论"
+                footTextView.text = "点击查看${allList}条评论"
             }
         }
     }

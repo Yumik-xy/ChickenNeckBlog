@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
@@ -21,6 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.formatTime
+import java.io.Serializable
 
 class CommentAdapter(
     private val context: Context,
@@ -29,40 +28,16 @@ class CommentAdapter(
     RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
     companion object {
-        private const val NORMAL_VIEW = 10000
-        private const val FOOT_VIEW = 10001
-
         private const val TAG = "ContainerAdapter"
     }
 
-    private var footHolder: CommentAdapter.CommentViewHolder? = null
+    inner class CommentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    inner class CommentViewHolder(view: View, viewType: Int) : RecyclerView.ViewHolder(view) {
-
-        lateinit var footTextView: TextView
-        lateinit var footLayout: LinearLayout
-        lateinit var footProgressBar: ContentLoadingProgressBar
-        lateinit var userPictureImageView: ImageView
-        lateinit var userNameTextView: TextView
-        lateinit var createTimeTextView: TextView
-        lateinit var commentTextView: TextView
-        lateinit var secondaryCommentLayout: ViewGroup
-
-        init {
-            if (viewType == FOOT_VIEW) {
-                footTextView = view.findViewById(R.id.footTextView)
-                footLayout = view.findViewById(R.id.footLayout)
-                footProgressBar =
-                    view.findViewById(R.id.footProgressBar)
-                footProgressBar.hide()
-            } else {
-                userPictureImageView = view.findViewById(R.id.userPictureImageView)
-                userNameTextView = view.findViewById(R.id.userNameTextView)
-                createTimeTextView = view.findViewById(R.id.createTimeTextView)
-                commentTextView = view.findViewById(R.id.commentTextView)
-                secondaryCommentLayout = view.findViewById(R.id.secondaryCommentLayout)
-            }
-        }
+        val userPictureImageView: ImageView = view.findViewById(R.id.userPictureImageView)
+        val userNameTextView: TextView = view.findViewById(R.id.userNameTextView)
+        val createTimeTextView: TextView = view.findViewById(R.id.createTimeTextView)
+        val commentTextView: TextView = view.findViewById(R.id.commentTextView)
+        val secondaryCommentLayout: ViewGroup = view.findViewById(R.id.secondaryCommentLayout)
     }
 
     private val list =
@@ -70,7 +45,7 @@ class CommentAdapter(
             Comment::class.java,
             object : SortedListAdapterCallback<Comment>(this) {
                 override fun compare(o1: Comment, o2: Comment): Int {
-                    return o1.id.compareTo(o2.id)
+                    return o2.id.compareTo(o1.id)
                 }
 
                 override fun areContentsTheSame(
@@ -90,32 +65,22 @@ class CommentAdapter(
 
     fun add(Comment: Comment) {
         list.add(Comment)
-        footHolder?.footProgressBar?.hide()
     }
 
     fun addAll(list: List<Comment>) {
         this.list.addAll(list)
-        if (list.isEmpty()) footHolder?.footTextView?.text = "没有更多评论了　>"
-        footHolder?.footProgressBar?.hide()
     }
 
     fun reAddAll(list: List<Comment>) {
         this.list.clear()
         this.list.addAll(list)
-        if (list.isEmpty()) footHolder?.footTextView?.text = "没有更多评论了　>"
-        footHolder?.footProgressBar?.hide()
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) FOOT_VIEW else NORMAL_VIEW
     }
 
     override fun getItemCount(): Int {
-        return list.size() + 1
+        return list.size()
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        if (getItemViewType(position) == NORMAL_VIEW) {
             val item = list[position]
             holder.apply {
                 userNameTextView.text = item.user.name
@@ -146,37 +111,20 @@ class CommentAdapter(
                     val adapter = SecondaryCommentAdapter(context) {
                         val intent = Intent(context, CommentActivity::class.java)
                         intent.putExtra("article_id", articleId)
-                        intent.putExtra("comment_id", item.id)
+//                        intent.putExtra("comment_id", item.id)
+                        intent.putExtra("data",item as Serializable)
                         context.startActivity(intent)
                     }
                     recyclerView.adapter = adapter
+                    adapter.addAll(item.commentList, item.commentNumber)
+                    secondaryCommentLayout.removeAllViews()
                     secondaryCommentLayout.addView(recyclerView)
-                    adapter.addAll(item.commentList)
                 }
             }
-        } else {
-            holder.apply {
-                if (list.size() == 0) {
-                    footTextView.text = "暂无评论　>"
-                    footProgressBar.hide()
-                } else {
-                    footTextView.text = "正在加载评论……"
-                    footProgressBar.show()
-                }
-            }
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
-        if (viewType == NORMAL_VIEW) {
             val root = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false)
-            return CommentViewHolder(root, viewType)
-        } else {
-            val root =
-                LayoutInflater.from(context).inflate(R.layout.item_foot_loading, parent, false)
-            val holder = CommentViewHolder(root, viewType)
-            footHolder = holder
-            return holder
-        }
+            return CommentViewHolder(root)
     }
 }

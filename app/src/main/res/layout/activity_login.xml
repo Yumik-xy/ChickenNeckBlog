@@ -100,7 +100,7 @@
             android:layout_height="match_parent"
             android:inputType="phone"
             android:textColor="@color/white"
-            android:theme="@style/MyEditText" />
+            android:theme="@style/WhiteEditText" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -125,7 +125,7 @@
             android:inputType="textPassword"
             android:singleLine="true"
             android:textColor="@color/white"
-            android:theme="@style/MyEditText" />
+            android:theme="@style/WhiteEditText" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.constraintlayout.widget.Guideline

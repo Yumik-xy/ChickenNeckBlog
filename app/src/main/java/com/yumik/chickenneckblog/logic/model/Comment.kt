@@ -1,5 +1,7 @@
 package com.yumik.chickenneckblog.logic.model
 
+import java.io.Serializable
+
 data class Comment(
     val id: Int,
     val time: Long,
@@ -10,4 +12,4 @@ data class Comment(
     val agreeNumber: Int,
     val commentNumber: Long,
     val commentList: List<Comment>?
-)
+) : Serializable

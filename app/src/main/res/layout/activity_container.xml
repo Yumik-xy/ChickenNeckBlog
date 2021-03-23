@@ -25,7 +25,6 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
                 app:popupTheme="@style/Theme.MyApplication.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -73,7 +72,6 @@
                     android:ellipsize="end"
                     android:gravity="start"
                     android:maxLines="1"
-                    android:text="鸡腿博客"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 <TextView
@@ -96,7 +94,6 @@
                 android:ellipsize="end"
                 android:gravity="start"
                 android:maxLines="1"
-                android:text="这个人很懒哦……"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textSize="12sp" />
 
@@ -152,8 +149,7 @@
                 android:id="@+id/favouriteTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="200" />
+                android:layout_gravity="center" />
 
         </LinearLayout>
 
@@ -196,8 +192,7 @@
                 android:id="@+id/markTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="200" />
+                android:layout_gravity="center" />
 
         </LinearLayout>
 
@@ -227,8 +222,7 @@
                 android:id="@+id/commentTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="200" />
+                android:layout_gravity="center" />
 
         </LinearLayout>
 

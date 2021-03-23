@@ -38,10 +38,6 @@ object Repository {
         ProjectNetwork.getComment(bean)
     }
 
-    fun getSecondaryComment(bean: CommentBean) = fire(Dispatchers.IO) {
-        ProjectNetwork.getSecondaryComment(bean)
-    }
-
     private fun <T> fire(context: CoroutineContext, block: suspend () -> BaseResponse<T>) =
         liveData(context) {
             val result = try {

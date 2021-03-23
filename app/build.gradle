@@ -94,4 +94,6 @@ dependencies {
     implementation "androidx.paging:paging-compose:1.0.0-alpha06"
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.31"
 
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
 }

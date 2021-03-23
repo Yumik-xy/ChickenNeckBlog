@@ -35,11 +35,7 @@ object ProjectNetwork {
         searchService.getSelectedArticle(bean.search, bean.classify, bean.sortOrder).await()
 
     suspend fun getComment(bean: CommentBean) =
-        commentNetwork.getComment(bean.article, bean.page).await()
-
-    suspend fun getSecondaryComment(bean: CommentBean) =
-        commentNetwork.getSecondaryComment(bean.article, bean.commentId, bean.page).await()
-
+        commentNetwork.getComment(bean.article, bean.commentId, bean.page).await()
 
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->

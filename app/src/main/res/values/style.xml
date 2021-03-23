@@ -12,9 +12,14 @@
 
     <style name="Theme.MyApplication.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="MyEditText" parent="Theme.AppCompat.Light">
+    <style name="WhiteEditText" parent="Theme.AppCompat.Light">
         <item name="colorControlNormal">@color/white</item>
         <item name="colorControlActivated">@color/white</item>
+    </style>
+
+    <style name="ThemeEditText" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/secondary</item>
+        <item name="colorControlActivated">@color/secondary</item>
     </style>
 
     <style name="Theme.MyApplication.AnimActivity" parent="Theme.MyApplication.NoActionBar">

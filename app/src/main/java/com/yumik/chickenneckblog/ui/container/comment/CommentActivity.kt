@@ -12,15 +12,20 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterInside
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import com.yumik.chickenneckblog.utils.TipsUtil.showToast
+import com.yumik.chickenneckblog.utils.formatTime
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 class CommentActivity : AppCompatActivity() {
@@ -31,6 +36,7 @@ class CommentActivity : AppCompatActivity() {
 
     private var articleId = -1
     private var commentId = -1
+    private var data: Comment? = null
     private var listPage = 1
     private var totalPage = Int.MAX_VALUE
 
@@ -38,7 +44,8 @@ class CommentActivity : AppCompatActivity() {
     private lateinit var adapter: CommentAdapter
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var nestedScrollView: NestedScrollView
+
+    //    private lateinit var nestedScrollView: NestedScrollView
     private lateinit var commentEditText: EditText
     private lateinit var postTextView: TextView
     private lateinit var toolbar: Toolbar
@@ -54,10 +61,11 @@ class CommentActivity : AppCompatActivity() {
 
         articleId = intent.getIntExtra("article_id", -1)
         commentId = intent.getIntExtra("comment_id", -1)
+        data = intent.getSerializableExtra("data") as? Comment
 
         viewModel = ViewModelProvider(this).get(CommentViewModel::class.java)
         recyclerView = findViewById(R.id.recyclerView)
-        nestedScrollView = findViewById(R.id.nestedScrollView)
+//        nestedScrollView = findViewById(R.id.nestedScrollView)
         commentEditText = findViewById(R.id.commentEditText)
         postTextView = findViewById(R.id.postTextView)
         toolbar = findViewById(R.id.toolbar)
@@ -88,24 +96,48 @@ class CommentActivity : AppCompatActivity() {
         }
         toolbar.title = "查看评论"
         toolbar.setOnUnShakeClickListener {
-            nestedScrollView.post {
-                nestedScrollView.smoothScrollTo(0, 0)
-            }
+//            nestedScrollView.post {
+//                nestedScrollView.smoothScrollTo(0, 0)
+//            }
         }
 
         if (articleId == -1) {
             "无法读取评论".showToast(ProjectApplication.context)
             finish()
         }
-        if (commentId == -1) {
+        if (data == null) {
             parentCommentLayout.visibility = View.GONE
+        } else {
+            val userPictureImageView: ImageView = findViewById(R.id.userPictureImageView)
+            val userNameTextView: TextView = findViewById(R.id.userNameTextView)
+            val createTimeTextView: TextView = findViewById(R.id.createTimeTextView)
+            val commentTextView: TextView = findViewById(R.id.commentTextView)
+            data?.apply {
+                userNameTextView.text = user.name
+                commentTextView.text = content
+                createTimeTextView.text = time.formatTime()
+                if (user.picture.isNullOrEmpty()) {
+                    userPictureImageView.visibility = View.GONE
+                } else {
+                    userPictureImageView.visibility = View.VISIBLE
+                    Glide.with(userPictureImageView.context)
+                        .load(user.picture)
+                        .placeholder(R.drawable.ic_drawer_user)
+                        .error(R.drawable.ic_image_error)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .transform(CenterInside(), CircleCrop())
+                        .into(userPictureImageView)
+                }
+            }
         }
-        viewModel.getComment(articleId, commentId, listPage)
+        viewModel.getComment(articleId, data?.id ?: -1, listPage)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = CommentAdapter(this, articleId)
         recyclerView.adapter = adapter
 
+        viewModel.getComment(articleId, data?.id ?: -1, listPage)
         viewModel.commentListLiveData.observe(this, {
             val success = it.getOrNull()
             Log.d(TAG, success.toString())
@@ -114,7 +146,11 @@ class CommentActivity : AppCompatActivity() {
                     val data = success.data
                     listPage = data.page + 1
                     totalPage = data.totalPage
-                    adapter.addAll(data.commentList)
+                    if (data.page == 1) {
+                        adapter.reAddAll(data.commentList)
+                    } else {
+                        adapter.addAll(data.commentList)
+                    }
                 } else {
                     recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
                 }
@@ -125,8 +161,9 @@ class CommentActivity : AppCompatActivity() {
 
         recyclerView.addOnScrollListener(object : OnLoadMoreListener() {
             override fun onLoadMore() {
-                if (listPage < totalPage) {
-                    viewModel.getComment(articleId, commentId, listPage)
+                Log.d("TAG", "addOnScrollListener")
+                if (listPage <= totalPage) {
+                    viewModel.getComment(articleId, data?.id ?: -1, listPage)
                 }
             }
         })

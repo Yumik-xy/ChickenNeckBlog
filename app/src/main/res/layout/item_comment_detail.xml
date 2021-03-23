@@ -35,7 +35,6 @@
                 android:layout_centerHorizontal="true"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="User Name"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/primary" />
 
@@ -48,7 +47,6 @@
                 android:layout_marginBottom="2dp"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="20/01/2020"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textSize="12sp" />
 
@@ -58,7 +56,6 @@
             android:id="@+id/commentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Content Content Content Content Content Content Content Content Content Content Content."
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textSize="15sp" />
 
