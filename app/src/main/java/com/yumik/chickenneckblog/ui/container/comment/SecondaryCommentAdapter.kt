@@ -90,11 +90,11 @@ class SecondaryCommentAdapter(private val context: Context, private val block: (
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) FOOT_VIEW else NORMAL_VIEW
+        return if (position == list.size()) FOOT_VIEW else NORMAL_VIEW
     }
 
     override fun getItemCount(): Int {
-        return list.size() + 1
+        return if (list.size() >= 2) list.size() + 1 else list.size()
     }
 
     @SuppressLint("SetTextI18n")

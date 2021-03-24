@@ -21,6 +21,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.logic.enum.AgreeCode
 import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
@@ -34,18 +35,17 @@ class CommentActivity : AppCompatActivity() {
         private const val TAG = "CommentActivity"
     }
 
-    private var articleId = -1
-    private var commentId = -1
+    private var articleId = 0
     private var data: Comment? = null
     private var listPage = 1
     private var totalPage = Int.MAX_VALUE
+    private var replyUser: Int = 0
 
     private lateinit var viewModel: CommentViewModel
     private lateinit var adapter: CommentAdapter
 
     private lateinit var recyclerView: RecyclerView
 
-    //    private lateinit var nestedScrollView: NestedScrollView
     private lateinit var commentEditText: EditText
     private lateinit var postTextView: TextView
     private lateinit var toolbar: Toolbar
@@ -59,13 +59,11 @@ class CommentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment)
 
-        articleId = intent.getIntExtra("article_id", -1)
-        commentId = intent.getIntExtra("comment_id", -1)
+        articleId = intent.getIntExtra("article_id", 0)
         data = intent.getSerializableExtra("data") as? Comment
 
         viewModel = ViewModelProvider(this).get(CommentViewModel::class.java)
         recyclerView = findViewById(R.id.recyclerView)
-//        nestedScrollView = findViewById(R.id.nestedScrollView)
         commentEditText = findViewById(R.id.commentEditText)
         postTextView = findViewById(R.id.postTextView)
         toolbar = findViewById(R.id.toolbar)
@@ -76,6 +74,15 @@ class CommentActivity : AppCompatActivity() {
         commentTextView = findViewById(R.id.commentTextView)
 
         initView()
+    }
+
+    override fun onBackPressed() {
+        if (replyUser != data?.id ?: 0 && commentEditText.text.isEmpty()) {
+            commentEditText.hint = "说点什么吧..."
+            replyUser = data?.id ?: 0
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -96,12 +103,12 @@ class CommentActivity : AppCompatActivity() {
         }
         toolbar.title = "查看评论"
         toolbar.setOnUnShakeClickListener {
-//            nestedScrollView.post {
-//                nestedScrollView.smoothScrollTo(0, 0)
-//            }
+            recyclerView.post {
+                recyclerView.smoothScrollToPosition(0)
+            }
         }
 
-        if (articleId == -1) {
+        if (articleId == 0) {
             "无法读取评论".showToast(ProjectApplication.context)
             finish()
         }
@@ -131,39 +138,33 @@ class CommentActivity : AppCompatActivity() {
                 }
             }
         }
-        viewModel.getComment(articleId, data?.id ?: -1, listPage)
+        viewModel.getComment(articleId, data?.id ?: 0, listPage)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = CommentAdapter(this, articleId)
-        recyclerView.adapter = adapter
-
-        viewModel.getComment(articleId, data?.id ?: -1, listPage)
-        viewModel.commentListLiveData.observe(this, {
-            val success = it.getOrNull()
-            Log.d(TAG, success.toString())
-            if (success != null) {
-                if (success.data != null && success.code == 200) {
-                    val data = success.data
-                    listPage = data.page + 1
-                    totalPage = data.totalPage
-                    if (data.page == 1) {
-                        adapter.reAddAll(data.commentList)
-                    } else {
-                        adapter.addAll(data.commentList)
-                    }
-                } else {
-                    recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
-                }
-            } else {
-                recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
+        adapter.setOnCommentClickListener(object : CommentAdapter.OnCommentClick {
+            override fun onCommentClick(item: Comment) {
+                commentEditText.hint = "@${item.user.name}"
+                replyUser = item.id
+                commentEditText.requestFocus()
             }
         })
+        adapter.setOnAgreeClickListener(object : CommentAdapter.OnAgreeClick {
+            override fun onAgreeClick(item: Comment, agree: AgreeCode) {
+                viewModel.postAgreeOrNotLiveData(articleId, item.id, agree)
+            }
+
+        })
+        recyclerView.adapter = adapter
+
+        viewModel.getComment(articleId, data?.id ?: 0, listPage)
 
         recyclerView.addOnScrollListener(object : OnLoadMoreListener() {
+
             override fun onLoadMore() {
                 Log.d("TAG", "addOnScrollListener")
                 if (listPage <= totalPage) {
-                    viewModel.getComment(articleId, data?.id ?: -1, listPage)
+                    viewModel.getComment(articleId, data?.id ?: 0, listPage)
                 }
             }
         })
@@ -189,7 +190,72 @@ class CommentActivity : AppCompatActivity() {
         })
 
         postTextView.setOnClickListener {
-
+            viewModel.postComment(articleId, replyUser, commentEditText.text.toString())
+            postTextView.apply {
+                setTextColor(resources.getColor(R.color.disable_text, resources.newTheme()))
+                isEnabled = false
+                isClickable = false
+            }
         }
+
+
+
+        viewModel.commentListLiveData.observe(this, {
+            val success = it.getOrNull()
+            Log.d(TAG, success.toString())
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    listPage = data.page + 1
+                    totalPage = data.totalPage
+                    if (data.page == 1) {
+                        adapter.reAddAll(data.commentList)
+                    } else {
+                        adapter.addAll(data.commentList)
+                    }
+                } else if (success.code == 30000 || success.code == 30001) {
+                    // 没有更多文章了，不需要显示
+                } else {
+                    recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
+                }
+            } else {
+                recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
+            }
+        })
+
+        viewModel.postCommentLiveData.observe(this, {
+            val success = it.getOrNull()
+            Log.d(TAG, success.toString())
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    if (this.data != null || data.commentId == 0) {
+                        adapter.add(data.comment)
+                    } else {
+                        adapter.add(data.comment, data.commentId)
+                    }
+                    commentEditText.text.clear()
+                } else {
+                    recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
+                }
+            } else {
+                recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
+            }
+        })
+
+        viewModel.postAgreeOrNotLiveData.observe(this, {
+            val success = it.getOrNull()
+            Log.d(TAG, success.toString())
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    adapter.add(data)
+                } else {
+                    recyclerView.showSnackbar("${success.message}，错误代码：${success.code}")
+                }
+            } else {
+                recyclerView.showSnackbar("网络请求失败，请检查网络连接！")
+            }
+        })
     }
 }

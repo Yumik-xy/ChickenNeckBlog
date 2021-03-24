@@ -11,5 +11,5 @@ data class Comment(
     val agree: Int,
     val agreeNumber: Int,
     val commentNumber: Long,
-    val commentList: List<Comment>?
+    var commentList: MutableList<Comment>?
 ) : Serializable

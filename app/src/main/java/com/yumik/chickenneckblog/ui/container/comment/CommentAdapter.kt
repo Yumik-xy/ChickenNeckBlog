@@ -1,12 +1,15 @@
 package com.yumik.chickenneckblog.ui.container.comment
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +20,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.logic.enum.AgreeCode
 import com.yumik.chickenneckblog.logic.model.Comment
+import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.formatTime
 import java.io.Serializable
 
@@ -27,6 +32,24 @@ class CommentAdapter(
 ) :
     RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
+    interface OnCommentClick {
+        fun onCommentClick(item: Comment)
+    }
+
+    private var onCommentClick: OnCommentClick? = null
+    fun setOnCommentClickListener(onCommentClick: OnCommentClick) {
+        this.onCommentClick = onCommentClick
+    }
+
+    interface OnAgreeClick {
+        fun onAgreeClick(item: Comment, agree: AgreeCode)
+    }
+
+    private var onAgreeClick: OnAgreeClick? = null
+    fun setOnAgreeClickListener(onAgreeClick: OnAgreeClick) {
+        this.onAgreeClick = onAgreeClick
+    }
+
     companion object {
         private const val TAG = "ContainerAdapter"
     }
@@ -35,9 +58,18 @@ class CommentAdapter(
 
         val userPictureImageView: ImageView = view.findViewById(R.id.userPictureImageView)
         val userNameTextView: TextView = view.findViewById(R.id.userNameTextView)
+        val replyToNameTextView: TextView = view.findViewById(R.id.replyToNameTextView)
         val createTimeTextView: TextView = view.findViewById(R.id.createTimeTextView)
         val commentTextView: TextView = view.findViewById(R.id.commentTextView)
         val secondaryCommentLayout: ViewGroup = view.findViewById(R.id.secondaryCommentLayout)
+        val commentContainer: LinearLayout = view.findViewById(R.id.commentContainer)
+        val agreeNumberTextView: TextView = view.findViewById(R.id.agreeNumberTextView)
+        val agreeImageView: ImageView = view.findViewById(R.id.agreeImageView)
+        val notAgreeImageView: ImageView = view.findViewById(R.id.notAgreeImageView)
+        val disagreeImageView: ImageView = view.findViewById(R.id.disagreeImageView)
+        val notDisagreeImageView: ImageView = view.findViewById(R.id.notDisagreeImageView)
+        val agreeLayout: FrameLayout = view.findViewById(R.id.agreeLayout)
+        val disagreeLayout: FrameLayout = view.findViewById(R.id.agreeLayout)
     }
 
     private val list =
@@ -67,6 +99,20 @@ class CommentAdapter(
         list.add(Comment)
     }
 
+    fun add(Comment: Comment, commentId: Int) {
+        for (i in 0 until list.size()) {
+            if (list[i].id == commentId) {
+                if (list[i].commentList == null) {
+                    list[i].commentList = mutableListOf(Comment)
+                } else {
+                    list[i].commentList!!.add(Comment)
+                }
+                notifyItemChanged(i)
+                break
+            }
+        }
+    }
+
     fun addAll(list: List<Comment>) {
         this.list.addAll(list)
     }
@@ -80,47 +126,87 @@ class CommentAdapter(
         return list.size()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-            val item = list[position]
-            holder.apply {
-                userNameTextView.text = item.user.name
-                commentTextView.text = item.content
-                createTimeTextView.text = item.time.formatTime()
-                if (item.user.picture.isNullOrEmpty()) {
-                    userPictureImageView.visibility = View.GONE
-                } else {
-                    userPictureImageView.visibility = View.VISIBLE
-                    Glide.with(userPictureImageView.context)
-                        .load(item.user.picture)
-                        .placeholder(R.drawable.ic_drawer_user)
-                        .error(R.drawable.ic_image_error)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        .transform(CenterInside(), CircleCrop())
-                        .into(userPictureImageView)
+        val item = list[position]
+        holder.apply {
+            userNameTextView.text = item.user.name
+            replyToNameTextView.text = "@${item.replyTo.name}"
+            commentTextView.text = item.content
+            createTimeTextView.text = item.time.formatTime()
+            agreeNumberTextView.text = item.agreeNumber.toLong().format()
+            when (item.agree) {
+                1 -> {
+                    agreeImageView.visibility = View.VISIBLE
+                    notAgreeImageView.visibility = View.GONE
+                    disagreeImageView.visibility = View.GONE
+                    notDisagreeImageView.visibility = View.VISIBLE
                 }
-                if (item.commentList != null) {
-                    Log.d(TAG, item.commentNumber.toString())
-                    Log.d(TAG, item.commentList.toString())
-                    val recyclerView = RecyclerView(context)
-                    recyclerView.layoutManager = object : LinearLayoutManager(context) {
-                        override fun canScrollVertically(): Boolean {
-                            return false
-                        }
-                    }
-                    val adapter = SecondaryCommentAdapter(context) {
-                        val intent = Intent(context, CommentActivity::class.java)
-                        intent.putExtra("article_id", articleId)
-//                        intent.putExtra("comment_id", item.id)
-                        intent.putExtra("data",item as Serializable)
-                        context.startActivity(intent)
-                    }
-                    recyclerView.adapter = adapter
-                    adapter.addAll(item.commentList, item.commentNumber)
-                    secondaryCommentLayout.removeAllViews()
-                    secondaryCommentLayout.addView(recyclerView)
+                0 -> {
+                    agreeImageView.visibility = View.GONE
+                    notAgreeImageView.visibility = View.VISIBLE
+                    disagreeImageView.visibility = View.GONE
+                    notDisagreeImageView.visibility = View.VISIBLE
+                }
+                -1 -> {
+                    agreeImageView.visibility = View.GONE
+                    notAgreeImageView.visibility = View.VISIBLE
+                    disagreeImageView.visibility = View.VISIBLE
+                    notDisagreeImageView.visibility = View.GONE
                 }
             }
+            if (item.user.picture.isNullOrEmpty()) {
+                userPictureImageView.visibility = View.GONE
+            } else {
+                userPictureImageView.visibility = View.VISIBLE
+                Glide.with(userPictureImageView.context)
+                    .load(item.user.picture)
+                    .placeholder(R.drawable.ic_drawer_user)
+                    .error(R.drawable.ic_image_error)
+                    .thumbnail(0.1f)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .transform(CenterInside(), CircleCrop())
+                    .into(userPictureImageView)
+            }
+            if (item.commentList != null) {
+                Log.d(TAG, item.commentNumber.toString())
+                Log.d(TAG, item.commentList.toString())
+                val recyclerView = RecyclerView(context)
+                recyclerView.layoutManager = object : LinearLayoutManager(context) {
+                    override fun canScrollVertically(): Boolean {
+                        return false
+                    }
+                }
+                val adapter = SecondaryCommentAdapter(context) {
+                    val intent = Intent(context, CommentActivity::class.java)
+                    intent.putExtra("article_id", articleId)
+                    intent.putExtra("data", item as Serializable)
+                    context.startActivity(intent)
+                }
+                recyclerView.adapter = adapter
+                adapter.addAll(item.commentList!!, item.commentNumber)
+                secondaryCommentLayout.removeAllViews()
+                secondaryCommentLayout.addView(recyclerView)
+            }
+            commentContainer.setOnClickListener {
+                onCommentClick?.onCommentClick(item)
+                Log.d(TAG, "onCommentClick ${onCommentClick == null}")
+            }
+            agreeLayout.setOnClickListener {
+                onAgreeClick?.onAgreeClick(
+                    item,
+                    if (agreeImageView.visibility == View.VISIBLE) AgreeCode.NONE else AgreeCode.AGREE
+                )
+            }
+            disagreeLayout.setOnClickListener {
+                agreeLayout.setOnClickListener {
+                    onAgreeClick?.onAgreeClick(
+                        item,
+                        if (agreeImageView.visibility == View.VISIBLE) AgreeCode.NONE else AgreeCode.DISAGREE
+                    )
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {

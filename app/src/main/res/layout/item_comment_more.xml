@@ -34,7 +34,6 @@
                 android:layout_centerHorizontal="true"
                 android:ellipsize="end"
                 android:singleLine="true"
-
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/primary" />
 

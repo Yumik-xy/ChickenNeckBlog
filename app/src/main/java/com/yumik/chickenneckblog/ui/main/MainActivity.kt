@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.tokenLoginBeanListLiveData.observe(this, {
             val success = it.getOrNull()
             if (success != null) {
-                if (success.data != null && success.code == 200) {
+                if (success.data != null && success.code == 200 && success.data.token.isNotEmpty()) {
                     val data = success.data
                     token = data.token
                     ProjectApplication.token = token

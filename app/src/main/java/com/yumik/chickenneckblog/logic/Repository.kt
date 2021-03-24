@@ -1,10 +1,7 @@
 package com.yumik.chickenneckblog.logic
 
 import androidx.lifecycle.liveData
-import com.yumik.chickenneckblog.logic.bean.CommentBean
-import com.yumik.chickenneckblog.logic.bean.SearchBean
-import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
-import com.yumik.chickenneckblog.logic.bean.UserLoginBean
+import com.yumik.chickenneckblog.logic.bean.*
 import com.yumik.chickenneckblog.logic.network.ProjectNetwork
 import com.yumik.chickenneckblog.logic.response.BaseResponse
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +31,16 @@ object Repository {
         ProjectNetwork.getSelectedArticle(bean)
     }
 
-    fun getComment(bean: CommentBean) = fire(Dispatchers.IO) {
-        ProjectNetwork.getComment(bean)
+    fun getCommentList(articleId: Int, commentId: Int, page: Int) = fire(Dispatchers.IO) {
+        ProjectNetwork.getCommentList(articleId, commentId, page)
+    }
+
+    fun postComment(bean: PostCommentBean) = fire(Dispatchers.IO) {
+        ProjectNetwork.postComment(bean)
+    }
+
+    fun postAgreeOrNot(bean: PostAgreeOrNotCommentBean) = fire(Dispatchers.IO) {
+        ProjectNetwork.postAgreeOrNot(bean)
     }
 
     private fun <T> fire(context: CoroutineContext, block: suspend () -> BaseResponse<T>) =

@@ -1,10 +1,8 @@
 package com.yumik.chickenneckblog.logic.network
 
 import android.util.Log
-import com.yumik.chickenneckblog.logic.bean.CommentBean
-import com.yumik.chickenneckblog.logic.bean.SearchBean
-import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
-import com.yumik.chickenneckblog.logic.bean.UserLoginBean
+import com.yumik.chickenneckblog.ProjectApplication
+import com.yumik.chickenneckblog.logic.bean.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,16 +24,28 @@ object ProjectNetwork {
         selectedArticleService.getSelectedArticle(page, token).await()
 
     suspend fun getArticle(id: Int) =
-        articleService.getArticle(id).await()
+        articleService.getArticle(id, ProjectApplication.token).await()
 
     suspend fun login(bean: UserLoginBean) = loginService.login(bean).await()
     suspend fun loginByToken(bean: TokenLoginBean) = loginService.loginByToken(bean).await()
 
     suspend fun getSelectedArticle(bean: SearchBean) =
-        searchService.getSelectedArticle(bean.search, bean.classify, bean.sortOrder).await()
+        searchService.getSelectedArticle(
+            bean.search,
+            bean.classify,
+            bean.sortOrder,
+            ProjectApplication.token
+        ).await()
 
-    suspend fun getComment(bean: CommentBean) =
-        commentNetwork.getComment(bean.article, bean.commentId, bean.page).await()
+    suspend fun getCommentList(articleId: Int, commentId: Int, page: Int) =
+        commentNetwork.getCommentList(articleId, commentId, page, ProjectApplication.token).await()
+
+    suspend fun postComment(bean: PostCommentBean) =
+        commentNetwork.postComment(bean, ProjectApplication.token).await()
+
+    suspend fun postAgreeOrNot(bean: PostAgreeOrNotCommentBean) =
+        commentNetwork.postAgreeOrNot(bean, ProjectApplication.token).await()
+
 
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
