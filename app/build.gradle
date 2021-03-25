@@ -16,7 +16,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode getVersionC()
-        versionName getGitHeadRefsSuffix()
+        versionName getVersionN()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,8 +36,7 @@ android {
     }
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = defaultConfig.versionName + "_" +
-                    new Date().format("yyyy-MM-dd") + ".apk"
+            outputFileName = "鸡腿博客_" + defaultConfig.versionName + ".apk"
         }
     }
 }

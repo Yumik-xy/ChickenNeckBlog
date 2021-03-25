@@ -1,4 +1,9 @@
 gradle.allprojects {
+    // 主版本号
+    def major = 0
+    // 次版本号
+    def minor = 0
+
     ext.getGitHeadRefsSuffix = {
         try {
             // .git/HEAD描述当前目录所指向的分支信息，内容示例："ref: refs/heads/master\n"
@@ -6,20 +11,12 @@ gradle.allprojects {
             if (headFile.exists()) {
                 String[] strings = headFile.getText('UTF-8').split(" ")
                 if (strings.size() > 1) {
-                    String[] version = strings[1].split("/")
-                    def versionName = ""
-                    switch (version[2].trim()) {
-                        case "main": versionName = "release."
-                            break
-                        case "develop": versionName = "debug."
-                            break
-                    }
                     String refFilePath = '.git/' + strings[1];
                     // 根据HEAD读取当前指向的hash值，路径示例为：".git/refs/heads/master"
                     def refFile = new File(refFilePath.replace("\n", ""));
                     // 索引文件内容为hash值+"\n"，
                     // 示例："90312cd9157587d11779ed7be776e3220050b308\n"
-                    return versionName + getVersionC() + "." + refFile.getText('UTF-8').substring(0, 7)
+                    return refFile.getText('UTF-8').substring(0, 7)
                 }
 
             }
@@ -38,5 +35,10 @@ gradle.allprojects {
             e.printStackTrace()
         }
         return ""
+    }
+
+    ext.getVersionN = {
+        // <APP名称><主版本号>.<子版本号><SVN最后提交数>
+        return major + "." + minor + "_" + getVersionC() + "_" + getGitHeadRefsSuffix()
     }
 }

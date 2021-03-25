@@ -2,6 +2,7 @@ package com.yumik.chickenneckblog.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +30,8 @@ import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.login.LoginActivity
 import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
+import com.yumik.chickenneckblog.utils.downLoad.DownloadListener
+import com.yumik.chickenneckblog.utils.downLoad.DownloadUtil
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 
@@ -61,6 +64,30 @@ class MainActivity : AppCompatActivity() {
         navController = findNavController(R.id.nav_host_fragment)
         loginTry()
         initView()
+//        testFun()
+    }
+
+    private fun testFun() {
+        val url = "file/download"
+        val path = (this.getExternalFilesDir("download")?.absolutePath ?: "/") + "1.txt"
+        DownloadUtil().download(url, path, object : DownloadListener {
+            override fun onStart() {
+                Log.d("DownloadUtil", "onStart")
+            }
+
+            override fun onProgress(progress: Int) {
+                Log.d("DownloadUtil", "onProgress $progress")
+            }
+
+            override fun onFinish(path: String?) {
+                Log.d("DownloadUtil", "onFinish $path")
+            }
+
+            override fun onFail(errorInfo: String?) {
+                Log.d("DownloadUtil", "onFail $errorInfo")
+            }
+
+        })
     }
 
     private fun loginTry() {
