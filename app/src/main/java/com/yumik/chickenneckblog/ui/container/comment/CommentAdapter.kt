@@ -20,7 +20,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.R
-import com.yumik.chickenneckblog.logic.enum.AgreeCode
 import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.formatTime
@@ -42,7 +41,7 @@ class CommentAdapter(
     }
 
     interface OnAgreeClick {
-        fun onAgreeClick(item: Comment, agree: AgreeCode)
+        fun onAgreeClick(item: Comment, agree: Int)
     }
 
     private var onAgreeClick: OnAgreeClick? = null
@@ -192,19 +191,17 @@ class CommentAdapter(
                 onCommentClick?.onCommentClick(item)
                 Log.d(TAG, "onCommentClick ${onCommentClick == null}")
             }
-            agreeLayout.setOnClickListener {
-                onAgreeClick?.onAgreeClick(
-                    item,
-                    if (agreeImageView.visibility == View.VISIBLE) AgreeCode.NONE else AgreeCode.AGREE
-                )
+            agreeImageView.setOnClickListener {
+                onAgreeClick?.onAgreeClick(item, 0)
             }
-            disagreeLayout.setOnClickListener {
-                agreeLayout.setOnClickListener {
-                    onAgreeClick?.onAgreeClick(
-                        item,
-                        if (agreeImageView.visibility == View.VISIBLE) AgreeCode.NONE else AgreeCode.DISAGREE
-                    )
-                }
+            notAgreeImageView.setOnClickListener {
+                onAgreeClick?.onAgreeClick(item, 1)
+            }
+            disagreeImageView.setOnClickListener {
+                onAgreeClick?.onAgreeClick(item, 0)
+            }
+            notDisagreeImageView.setOnClickListener {
+                onAgreeClick?.onAgreeClick(item, -1)
             }
         }
     }

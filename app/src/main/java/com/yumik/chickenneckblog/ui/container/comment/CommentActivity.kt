@@ -21,7 +21,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
-import com.yumik.chickenneckblog.logic.enum.AgreeCode
 import com.yumik.chickenneckblog.logic.model.Comment
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
@@ -150,7 +149,7 @@ class CommentActivity : AppCompatActivity() {
             }
         })
         adapter.setOnAgreeClickListener(object : CommentAdapter.OnAgreeClick {
-            override fun onAgreeClick(item: Comment, agree: AgreeCode) {
+            override fun onAgreeClick(item: Comment, agree: Int) {
                 viewModel.postAgreeOrNotLiveData(articleId, item.id, agree)
             }
 

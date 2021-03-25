@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.yumik.chickenneckblog.logic.Repository
 import com.yumik.chickenneckblog.logic.bean.PostAgreeOrNotCommentBean
 import com.yumik.chickenneckblog.logic.bean.PostCommentBean
-import com.yumik.chickenneckblog.logic.enum.AgreeCode
 
 class CommentViewModel : ViewModel() {
 
@@ -39,9 +38,9 @@ class CommentViewModel : ViewModel() {
         Repository.postAgreeOrNot(it)
     }
 
-    fun postAgreeOrNotLiveData(articleId: Int, commentId: Int, agree: AgreeCode) {
+    fun postAgreeOrNotLiveData(articleId: Int, commentId: Int, agree: Int) {
         _postAgreeOrNotLiveData.value =
-            PostAgreeOrNotCommentBean(articleId, commentId, agree.ordinal)
+            PostAgreeOrNotCommentBean(articleId, commentId, agree)
     }
 
 }
