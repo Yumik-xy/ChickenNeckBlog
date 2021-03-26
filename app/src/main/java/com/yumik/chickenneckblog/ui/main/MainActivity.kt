@@ -28,7 +28,7 @@ import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.ui.login.LoginActivity
-import com.yumik.chickenneckblog.ui.main.service.DownloadService
+import com.yumik.chickenneckblog.ui.service.DownloadService
 import com.yumik.chickenneckblog.utils.GetDirection.getDiskCacheDir
 import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar

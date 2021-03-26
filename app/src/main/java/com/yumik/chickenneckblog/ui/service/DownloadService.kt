@@ -1,4 +1,4 @@
-package com.yumik.chickenneckblog.ui.main.service
+package com.yumik.chickenneckblog.ui.service
 
 import android.app.NotificationManager
 import android.app.Service
