@@ -18,9 +18,12 @@ class DownloadService : Service() {
     private lateinit var notificationManager: NotificationManager
     private lateinit var notification: NotificationCompat.Builder
 
+    companion object {
+        private const val TAG = "DownloadService"
+    }
 
     override fun onCreate() {
-        Log.d("DownloadService", "onCreate")
+        Log.d(TAG, "onCreate")
 
         super.onCreate()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -35,10 +38,21 @@ class DownloadService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val url = intent?.getStringExtra("url")
         val path = intent?.getStringExtra("path")
-        if (url == null || path == null) {
-            "未获取到url".showToast(this)
+        val md5 = intent?.getStringExtra("md5")
+        if (url == null || path == null || md5 == null) {
             return flags
         }
+        File(path).also { file ->
+            if (file.exists() && DownloadUtil().getFileMD5(file) == md5) {
+                DownloadUtil().installApp(
+                    this@DownloadService,
+                    "com.yumik.chickenneckblog.fileProvider",
+                    path
+                )
+                return flags
+            }
+        }
+
         DownloadUtil().download(url, path, object : DownloadListener {
             override fun onStart() {
                 Log.d("DownloadUtil", "onStart")
@@ -55,16 +69,20 @@ class DownloadService : Service() {
                 Thread {
                     Log.d("DownloadUtil", "onFinish $path")
                     notificationManager.cancel(0)
-                    if (path != null)
-                        File(path).also { file ->
-                            if (file.exists()) {
+                    File(path!!).also { file ->
+                        if (file.exists()) {
+                            if (DownloadUtil().getFileMD5(file) == md5) {
                                 DownloadUtil().installApp(
                                     this@DownloadService,
                                     "com.yumik.chickenneckblog.fileProvider",
                                     path
                                 )
+                            } else {
+                                "安装包校验失败！".showToast(this@DownloadService)
+                                deleteFile(path)
                             }
                         }
+                    }
                     stopSelf()
                 }.start()
             }

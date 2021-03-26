@@ -5,8 +5,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.yumik.chickenneckblog.logic.Repository
 import com.yumik.chickenneckblog.logic.bean.TokenLoginBean
-import com.yumik.chickenneckblog.logic.response.BaseResponse
-import com.yumik.chickenneckblog.logic.response.LoginResponse
 
 class MainViewModel : ViewModel() {
 
@@ -21,4 +19,6 @@ class MainViewModel : ViewModel() {
     fun loginUser(token: String) {
         _tokenLoginBeanListLiveData.value = TokenLoginBean(token)
     }
+
+    val checkUpdateLiveData = Repository.checkUpdate()
 }

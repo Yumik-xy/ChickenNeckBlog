@@ -43,6 +43,8 @@ object Repository {
         ProjectNetwork.postAgreeOrNot(bean)
     }
 
+    fun checkUpdate() = fire(Dispatchers.IO) { ProjectNetwork.checkUpdate() }
+
     private fun <T> fire(context: CoroutineContext, block: suspend () -> BaseResponse<T>) =
         liveData(context) {
             val result = try {

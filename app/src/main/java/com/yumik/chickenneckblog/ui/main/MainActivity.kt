@@ -2,6 +2,7 @@ package com.yumik.chickenneckblog.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -63,16 +64,37 @@ class MainActivity : AppCompatActivity() {
         navController = findNavController(R.id.nav_host_fragment)
         loginTry()
         initView()
-        testFun()
+        checkUpload()
     }
 
-    private fun testFun() {
-        val url = "file/download"
-        val path = getDiskCacheDir(this) + "1.apk"
-        val intent = Intent(this, DownloadService::class.java)
-        intent.putExtra("url", url)
-        intent.putExtra("path", path)
-        startService(intent)
+    private fun checkUpload() {
+        viewModel.checkUpdateLiveData.observe(this, {
+            val success = it.getOrNull()
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    Log.d(TAG, data.toString())
+                    val packageManager = packageManager
+                    val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                    val versionCode =
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            packageInfo.longVersionCode
+                        } else {
+                            packageInfo.versionCode.toLong()
+                        }
+                    if (versionCode <= data.versionCode) {
+                        Log.d(TAG, "Try to update")
+                        val intent = Intent(this, DownloadService::class.java)
+                        intent.putExtra("url", data.downLoadUrl)
+                        intent.putExtra("path", getDiskCacheDir(this) + data.name + ".apk")
+                        intent.putExtra("md5", data.md5)
+                        startService(intent)
+                    }
+                }
+            }
+        })
+//        val url = "file/download"
+//        val path = getDiskCacheDir(this) + "1.apk"
     }
 
     private fun loginTry() {
@@ -178,7 +200,7 @@ class MainActivity : AppCompatActivity() {
             queryHint = "输入你要搜索的文章"
             maxWidth = Integer.MAX_VALUE
 //            失去焦点关闭
-            setOnQueryTextFocusChangeListener { v, hasFocus ->
+            setOnQueryTextFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
                     switchFragment(R.id.nav_search)
                 } else {

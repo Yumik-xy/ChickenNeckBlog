@@ -13,7 +13,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.*
-import java.util.*
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.util.concurrent.Executors
 
 
@@ -127,5 +128,21 @@ class DownloadUtil {
             )
         }
         context.startActivity(intent)
+    }
+
+    fun getFileMD5(file: File): String? {
+        if (!file.isFile) {
+            return null
+        }
+        val buffer = ByteArray(1024)
+        var len: Int
+        val digest = MessageDigest.getInstance("MD5")
+        val fileInputStream = FileInputStream(file)
+        while (fileInputStream.read(buffer, 0, 1024).also { len = it } != -1) {
+            digest.update(buffer, 0, len)
+        }
+        fileInputStream.close()
+        val bigInt = BigInteger(1, digest.digest())
+        return bigInt.toString(16)
     }
 }
