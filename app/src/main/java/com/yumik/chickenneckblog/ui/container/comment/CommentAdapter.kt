@@ -167,6 +167,7 @@ class CommentAdapter(
                     .transform(CenterInside(), CircleCrop())
                     .into(userPictureImageView)
             }
+            secondaryCommentLayout.removeAllViews()
             if (item.commentList != null) {
                 Log.d(TAG, item.commentNumber.toString())
                 Log.d(TAG, item.commentList.toString())
@@ -184,7 +185,6 @@ class CommentAdapter(
                 }
                 recyclerView.adapter = adapter
                 adapter.addAll(item.commentList!!, item.commentNumber)
-                secondaryCommentLayout.removeAllViews()
                 secondaryCommentLayout.addView(recyclerView)
             }
             commentContainer.setOnClickListener {

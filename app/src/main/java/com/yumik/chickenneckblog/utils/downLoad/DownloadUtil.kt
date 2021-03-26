@@ -1,5 +1,10 @@
 package com.yumik.chickenneckblog.utils.downLoad
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import androidx.core.content.FileProvider
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.logic.network.DownLoadNetwork
 import okhttp3.ResponseBody
@@ -8,12 +13,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.*
+import java.util.*
 import java.util.concurrent.Executors
+
 
 class DownloadUtil {
 
     companion object {
-        private const val BUFFER_SIZE = 8192
+        private const val BUFFER_SIZE = 1024 * 4
     }
 
     fun download(url: String, path: String, downloadListener: DownloadListener) {
@@ -71,14 +78,19 @@ class DownloadUtil {
 
         var outputStream: OutputStream? = null
         var currentLength = 0
+//        var startTime = Date().time
         try {
             outputStream = BufferedOutputStream(FileOutputStream(file))
             val data = ByteArray(BUFFER_SIZE)
-            var len = 0
+            var len: Int
             while (inputStream.read(data, 0, BUFFER_SIZE).also { len = it } != -1) {
                 outputStream.write(data, 0, len)
                 currentLength += len
-                downloadListener.onProgress((100 * currentLength / totalLength).toInt())
+                downloadListener.onProgress(
+                    (100 * currentLength / totalLength).toInt(),
+                    currentLength,
+                    totalLength
+                )
             }
             downloadListener.onFinish(file.absolutePath)
         } catch (e: IOException) {
@@ -96,5 +108,24 @@ class DownloadUtil {
                 e.printStackTrace()
             }
         }
+    }
+
+    fun installApp(context: Context, fileProvider: String, apkPath: String) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val contentUri: Uri = FileProvider.getUriForFile(
+                context,
+                fileProvider, File(apkPath)
+            )
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive")
+        } else {
+            intent.setDataAndType(
+                Uri.fromFile(File(apkPath)),
+                "application/vnd.android.package-archive"
+            )
+        }
+        context.startActivity(intent)
     }
 }

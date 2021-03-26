@@ -36,7 +36,7 @@ android {
     }
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "鸡腿博客_" + defaultConfig.versionName + ".apk"
+            outputFileName = "ChickenNeckBlog_" + defaultConfig.versionName + ".apk"
         }
     }
 }

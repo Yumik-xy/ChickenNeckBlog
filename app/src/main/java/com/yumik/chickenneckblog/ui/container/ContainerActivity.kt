@@ -151,7 +151,11 @@ class ContainerActivity : AppCompatActivity() {
             intent.putExtra("article_id", articleId)
             startActivity(intent)
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = object : LinearLayoutManager(this) {
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }
         recyclerView.adapter = adapter
 
         viewModel.getArticle(articleId)
