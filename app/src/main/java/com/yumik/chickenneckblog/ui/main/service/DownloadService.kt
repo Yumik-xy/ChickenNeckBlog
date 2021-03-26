@@ -39,7 +39,8 @@ class DownloadService : Service() {
         val url = intent?.getStringExtra("url")
         val path = intent?.getStringExtra("path")
         val md5 = intent?.getStringExtra("md5")
-        if (url == null || path == null || md5 == null) {
+        val important = intent?.getBooleanExtra("important", false)
+        if (url == null || path == null || md5 == null && important == null) {
             return flags
         }
         File(path).also { file ->
@@ -49,7 +50,10 @@ class DownloadService : Service() {
                     "com.yumik.chickenneckblog.fileProvider",
                     path
                 )
-                return flags
+                if (important == true){
+
+                }
+                    return flags
             }
         }
 
@@ -58,10 +62,14 @@ class DownloadService : Service() {
                 Log.d("DownloadUtil", "onStart")
             }
 
-            override fun onProgress(progress: Int, currentLength: Int, totalLength: Long) {
+            override fun onProgress(progress: Int, speed: Float) {
                 Log.d("DownloadUtil", "onProgress $progress%")
                 notification.setProgress(100, progress, false)
-                    .setContentText("新版本下载中... 已完成 ${currentLength}/${totalLength}")
+                    .setContentText(
+                        "已完成${progress}% - ${
+                            (speed / 1024).toString().format("%.2f")
+                        }KB/s"
+                    )
                 notificationManager.notify(0, notification.build())
             }
 

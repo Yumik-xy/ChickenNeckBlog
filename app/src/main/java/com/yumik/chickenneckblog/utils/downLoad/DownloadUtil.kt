@@ -79,18 +79,23 @@ class DownloadUtil {
 
         var outputStream: OutputStream? = null
         var currentLength = 0
-//        var startTime = Date().time
+        var speed = 0f
+        var startTime = System.currentTimeMillis()
         try {
             outputStream = BufferedOutputStream(FileOutputStream(file))
             val data = ByteArray(BUFFER_SIZE)
             var len: Int
             while (inputStream.read(data, 0, BUFFER_SIZE).also { len = it } != -1) {
+                val endTime = System.currentTimeMillis()
+                if (endTime - startTime > 1000) {
+                    speed = len * 1000.0f / (endTime - startTime)
+                }
+                startTime = endTime
                 outputStream.write(data, 0, len)
                 currentLength += len
                 downloadListener.onProgress(
                     (100 * currentLength / totalLength).toInt(),
-                    currentLength,
-                    totalLength
+                    speed
                 )
             }
             downloadListener.onFinish(file.absolutePath)

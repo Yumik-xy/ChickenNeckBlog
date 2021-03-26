@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.ui.main.MainActivity
 import com.yumik.chickenneckblog.utils.GetMd5Util.getMD5
 import com.yumik.chickenneckblog.utils.ImmersiveUtil.immersive
@@ -28,7 +29,7 @@ import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "LoginActivity"

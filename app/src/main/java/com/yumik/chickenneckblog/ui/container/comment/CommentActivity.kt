@@ -22,13 +22,14 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.logic.model.Comment
+import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.utils.OnLoadMoreListener
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import com.yumik.chickenneckblog.utils.TipsUtil.showToast
 import com.yumik.chickenneckblog.utils.formatTime
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
-class CommentActivity : AppCompatActivity() {
+class CommentActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "CommentActivity"

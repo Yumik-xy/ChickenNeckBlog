@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -27,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.ui.login.LoginActivity
 import com.yumik.chickenneckblog.ui.main.service.DownloadService
 import com.yumik.chickenneckblog.utils.GetDirection.getDiskCacheDir
@@ -35,7 +35,7 @@ import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
@@ -82,12 +82,14 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             packageInfo.versionCode.toLong()
                         }
-                    if (versionCode <= data.versionCode) {
+                    if (versionCode < data.versionCode) {
                         Log.d(TAG, "Try to update")
                         val intent = Intent(this, DownloadService::class.java)
                         intent.putExtra("url", data.downLoadUrl)
                         intent.putExtra("path", getDiskCacheDir(this) + data.name + ".apk")
                         intent.putExtra("md5", data.md5)
+                        intent.putExtra("important", data.important)
+
                         startService(intent)
                     }
                 }

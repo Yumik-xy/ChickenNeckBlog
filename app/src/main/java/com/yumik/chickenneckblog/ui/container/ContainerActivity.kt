@@ -23,6 +23,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.android.material.appbar.AppBarLayout
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.ui.container.comment.CommentActivity
 import com.yumik.chickenneckblog.utils.LongNumberFormat.format
 import com.yumik.chickenneckblog.utils.MarkdownEscape.escape
@@ -32,7 +33,7 @@ import com.yumik.chickenneckblog.utils.formatTime
 import com.yumik.chickenneckblog.utils.setOnUnShakeClickListener
 
 
-class ContainerActivity : AppCompatActivity() {
+class ContainerActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "ContainerActivity"
