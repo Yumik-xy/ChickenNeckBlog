@@ -29,19 +29,27 @@ class DownloadUtil {
             .baseUrl(ProjectApplication.BASE_URL)
             .callbackExecutor(Executors.newSingleThreadExecutor())
             .build()
+        try {
+            val service = retrofit.create(DownLoadNetwork::class.java)
+            val call = service.download(url)
+            call.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    writeResponseToDisk(path, response, downloadListener)
+                }
 
-        val service = retrofit.create(DownLoadNetwork::class.java)
-        val call = service.download(url)
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                writeResponseToDisk(path, response, downloadListener);
-            }
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    downloadListener.onFail("无法连接到网络")
+                }
 
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                downloadListener.onFail("无法连接到网络");
-            }
+            })
+        } catch (e: Exception) {
+            downloadListener.onFail("网络中断")
+            e.printStackTrace()
+        }
 
-        })
     }
 
     private fun writeResponseToDisk(

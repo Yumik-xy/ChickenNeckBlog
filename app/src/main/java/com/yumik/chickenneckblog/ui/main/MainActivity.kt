@@ -1,7 +1,11 @@
 package com.yumik.chickenneckblog.ui.main
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -29,6 +33,7 @@ import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.BaseActivity
 import com.yumik.chickenneckblog.ui.login.LoginActivity
 import com.yumik.chickenneckblog.ui.service.DownloadService
+import com.yumik.chickenneckblog.ui.service.MqttService
 import com.yumik.chickenneckblog.utils.GetDirection.getDiskCacheDir
 import com.yumik.chickenneckblog.utils.SPUtil
 import com.yumik.chickenneckblog.utils.TipsUtil.showSnackbar
@@ -43,9 +48,21 @@ class MainActivity : BaseActivity() {
     }
 
     private var token by SPUtil(this, "token", "")
+    private var version by SPUtil(this, "version", -1L)
+
+    lateinit var mqttBinder: MqttService.MqttBinder
+    private val mqttConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mqttBinder = service as MqttService.MqttBinder
+            mqttBinder.service.subscribeAllTopics()
+            mqttBinder.service.publishMessage("try to connect the service!")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-
     private lateinit var navController: NavController
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
@@ -65,6 +82,12 @@ class MainActivity : BaseActivity() {
         loginTry()
         initView()
         checkUpload()
+        runMqttService()
+    }
+
+    private fun runMqttService() {
+        val intent = Intent(this, MqttService::class.java)
+        bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE)
     }
 
     private fun checkUpload() {
@@ -82,21 +105,33 @@ class MainActivity : BaseActivity() {
                         } else {
                             packageInfo.versionCode.toLong()
                         }
-                    if (versionCode < data.versionCode) {
-                        Log.d(TAG, "Try to update")
-                        val intent = Intent(this, DownloadService::class.java)
-                        intent.putExtra("url", data.downLoadUrl)
-                        intent.putExtra("path", getDiskCacheDir(this) + data.name + ".apk")
-                        intent.putExtra("md5", data.md5)
-                        intent.putExtra("important", data.important)
-
-                        startService(intent)
+                    if (version == -1L) version = versionCode
+                    if (version < data.versionCode) {
+                        MaterialAlertDialogBuilder(this)
+                            .setTitle("有更新！")
+                            .setMessage(
+                                "版本号：${data.version}\n" +
+                                        "更新内容：\n" +
+                                        "${data.description}\n" +
+                                        "更新大小：${data.size}"
+                            )
+                            .setNeutralButton("跳过这个版本") { _, _ ->
+                                version = data.versionCode
+                            }
+                            .setNegativeButton("取消") { _, _ -> }
+                            .setPositiveButton("更新") { _, _ ->
+                                val intent = Intent(this, DownloadService::class.java)
+                                intent.putExtra("url", data.downLoadUrl)
+                                intent.putExtra("path", getDiskCacheDir(this) + data.name + ".apk")
+                                intent.putExtra("md5", data.md5)
+                                intent.putExtra("important", data.important)
+                                startService(intent)
+                            }
+                            .show()
                     }
                 }
             }
         })
-//        val url = "file/download"
-//        val path = getDiskCacheDir(this) + "1.apk"
     }
 
     private fun loginTry() {
@@ -130,6 +165,11 @@ class MainActivity : BaseActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unbindService(mqttConnection)
     }
 
     private fun initView() {

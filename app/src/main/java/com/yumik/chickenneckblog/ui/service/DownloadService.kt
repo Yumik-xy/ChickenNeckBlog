@@ -7,25 +7,30 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import com.yumik.chickenneckblog.R
+import com.yumik.chickenneckblog.logic.Repository
 import com.yumik.chickenneckblog.utils.TipsUtil.showToast
 import com.yumik.chickenneckblog.utils.downLoad.DownloadListener
 import com.yumik.chickenneckblog.utils.downLoad.DownloadUtil
 import java.io.File
 
-class DownloadService : Service() {
+
+class DownloadService : Service(), LifecycleOwner {
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var notification: NotificationCompat.Builder
+    private val mLifecycleRegistry = LifecycleRegistry(this)
 
     companion object {
         private const val TAG = "DownloadService"
     }
 
     override fun onCreate() {
-        Log.d(TAG, "onCreate")
-
         super.onCreate()
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notification = NotificationCompat.Builder(this, "normal").apply {
             setTicker("开始更新")
@@ -33,9 +38,37 @@ class DownloadService : Service() {
             setContentText("新版本下载中")
             setSmallIcon(R.drawable.ic_logo)
         }
+        val checkUpdateLiveData = Repository.checkUpdate()
+        checkUpdateLiveData.observe(this, {
+            val success = it.getOrNull()
+            if (success != null) {
+                if (success.data != null && success.code == 200) {
+                    val data = success.data
+                    Log.d(TAG, data.toString())
+                    val packageManager = packageManager
+                    val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                    val versionCode =
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            packageInfo.longVersionCode
+                        } else {
+                            packageInfo.versionCode.toLong()
+                        }
+                    if (versionCode < data.versionCode) {
+
+                    }
+                }
+            }
+        })
     }
 
+    override fun onStart(intent: Intent?, startId: Int) {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        super.onStart(intent, startId)
+    }
+
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         val url = intent?.getStringExtra("url")
         val path = intent?.getStringExtra("path")
         val md5 = intent?.getStringExtra("md5")
@@ -53,7 +86,7 @@ class DownloadService : Service() {
                 if (important == true){
 
                 }
-                    return flags
+                return flags
             }
         }
 
@@ -108,5 +141,9 @@ class DownloadService : Service() {
 
     override fun onBind(intent: Intent): IBinder {
         TODO()
+    }
+
+    override fun getLifecycle(): Lifecycle {
+        return mLifecycleRegistry
     }
 }
