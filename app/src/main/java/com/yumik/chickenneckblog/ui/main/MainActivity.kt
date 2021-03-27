@@ -54,8 +54,6 @@ class MainActivity : BaseActivity() {
     private val mqttConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             mqttBinder = service as MqttService.MqttBinder
-            mqttBinder.service.subscribeAllTopics()
-            mqttBinder.service.publishMessage("try to connect the service!")
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
