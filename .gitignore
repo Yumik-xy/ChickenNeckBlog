@@ -214,3 +214,4 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio
 app/src/main/java/com/yumik/chickenneckblog/ProjectApplication.kt
+app/release/output-metadata.json

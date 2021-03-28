@@ -59,7 +59,8 @@ class MqttService : Service() {
                         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 }
                 notificationManager.notify(
-                    2, NotificationCompat.Builder(this@MqttService, "message_notice")
+                    (Math.random() * 3000).toInt() + 1,
+                    NotificationCompat.Builder(this@MqttService, "message_notice")
                         .setAutoCancel(true)
                         .setContentTitle("$payload")
                         .setContentText("$message")
