@@ -11,6 +11,9 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import com.yumik.chickenneckblog.ProjectApplication
 import com.yumik.chickenneckblog.R
 import com.yumik.chickenneckblog.ui.main.MainActivity
@@ -18,11 +21,13 @@ import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
 
-class MqttService : Service() {
+class MqttService : Service(), LifecycleOwner {
 
     companion object {
         private const val TAG = "MqttService"
     }
+
+    private val lifecycleOwner = LifecycleRegistry(this)
 
     private val publishTopic = "androidPublishTopic"
     private val serverUri = ProjectApplication.MQTT_SERVICE
@@ -39,11 +44,18 @@ class MqttService : Service() {
 
     override fun onBind(intent: Intent): IBinder {
 //        startForeground(1, keepServiceNotification)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         return MqttBinder()
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        return super.onUnbind(intent)
     }
 
     override fun onCreate() {
         super.onCreate()
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         mqttAndroidClient = MqttAndroidClient(this, serverUri, ProjectApplication.uuid)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectionLost(cause: Throwable?) {
@@ -92,7 +104,7 @@ class MqttService : Service() {
             isAutomaticReconnect = true // 自动重连
             isCleanSession = false //连接时不清除session缓存
             connectionTimeout = 20 // 超时20s
-            keepAliveInterval = 5 // 心跳包20s
+            keepAliveInterval = 20 // 心跳包20s
             maxInflight = 10 // 最多建立10个连接
             mqttVersion = MqttConnectOptions.MQTT_VERSION_3_1_1
         }
@@ -142,6 +154,9 @@ class MqttService : Service() {
         for (item in topicList) {
             subscribeToTopic(item)
         }
+        ProjectApplication.loginStateLiveData.observe(this, {
+            subscribeToTopic("mqtt/message/${it.user.id}")
+        })
     }
 
     /**
@@ -182,12 +197,14 @@ class MqttService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "MqttService onStartCommand executed")
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
 //        startForeground(1, keepServiceNotification)
         return super.onStartCommand(intent, START_FLAG_RETRY, startId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         notificationManager.cancelAll()
         stopForeground(true)
         try {
@@ -198,5 +215,10 @@ class MqttService : Service() {
             e.printStackTrace()
         }
         Log.d(TAG, "MqttService onDestroy executed")
+    }
+
+
+    override fun getLifecycle(): Lifecycle {
+        return lifecycleOwner
     }
 }

@@ -10,7 +10,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -120,6 +119,7 @@ class CommentActivity : BaseActivity() {
             val createTimeTextView: TextView = findViewById(R.id.createTimeTextView)
             val commentTextView: TextView = findViewById(R.id.commentTextView)
             data?.apply {
+                replyUser = id
                 userNameTextView.text = user.name
                 commentTextView.text = content
                 createTimeTextView.text = time.formatTime()
