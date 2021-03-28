@@ -83,9 +83,6 @@ class DownloadService : Service(), LifecycleOwner {
                     "com.yumik.chickenneckblog.fileProvider",
                     path
                 )
-                if (important == true){
-
-                }
                 return flags
             }
         }

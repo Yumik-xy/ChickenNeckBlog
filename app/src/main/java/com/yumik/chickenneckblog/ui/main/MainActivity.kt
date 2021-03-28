@@ -54,6 +54,7 @@ class MainActivity : BaseActivity() {
     private val mqttConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             mqttBinder = service as MqttService.MqttBinder
+//            mqttBinder.service.publishMessage("")
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -78,13 +79,14 @@ class MainActivity : BaseActivity() {
         navView = findViewById(R.id.nav_view)
         navController = findNavController(R.id.nav_host_fragment)
         loginTry()
-        initView()
         checkUpload()
         runMqttService()
+        initView()
     }
 
     private fun runMqttService() {
         val intent = Intent(this, MqttService::class.java)
+        startService(intent)
         bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE)
     }
 
@@ -137,6 +139,7 @@ class MainActivity : BaseActivity() {
             switchFragment(R.id.nav_follow)
             return
         }
+
         ProjectApplication.token = token
         viewModel.loginUser(ProjectApplication.token)
         viewModel.tokenLoginBeanListLiveData.observe(this, {
@@ -167,7 +170,9 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(mqttConnection)
+//        val intent = Intent(this, MqttService::class.java)
+//        unbindService(mqttConnection)
+//        stopService(intent)
     }
 
     private fun initView() {

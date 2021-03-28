@@ -38,6 +38,7 @@ class MqttService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
+//        startForeground(1, keepServiceNotification)
         return MqttBinder()
 //        throw UnsupportedOperationException("Not yet implemented")
     }
@@ -59,12 +60,15 @@ class MqttService : Service() {
                         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 }
                 notificationManager.notify(
-                    1, NotificationCompat.Builder(this@MqttService, "normal")
+                    2, NotificationCompat.Builder(this@MqttService, "message_notice")
                         .setAutoCancel(true)
+                        .setContentTitle("$payload")
+                        .setStyle(NotificationCompat.BigTextStyle().bigText("$message"))
                         .setSmallIcon(R.drawable.ic_logo)
                         .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_logo))
                         .build()
                 )
+
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
@@ -82,10 +86,12 @@ class MqttService : Service() {
             }
         })
         val mqttConnectOptions = MqttConnectOptions().apply {
+            userName = ProjectApplication.MQTT_USER
+            password = ProjectApplication.MQTT_PASSWORD.toCharArray()
             isAutomaticReconnect = true // 自动重连
             isCleanSession = false //连接时不清除session缓存
             connectionTimeout = 20 // 超时20s
-            keepAliveInterval = 20 // 心跳包20s
+            keepAliveInterval = 5 // 心跳包20s
             maxInflight = 10 // 最多建立10个连接
             mqttVersion = MqttConnectOptions.MQTT_VERSION_3_1_1
         }
@@ -145,6 +151,7 @@ class MqttService : Service() {
             mqttAndroidClient.subscribe(subscriptionTopic, 2, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
                     Log.d(TAG, "onSuccess: Success to $subscriptionTopic!")
+//                    publishMessage("Hello this is ${ProjectApplication.uuid}")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -174,7 +181,7 @@ class MqttService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "MqttService onStartCommand executed")
-        startForeground(1, keepServiceNotification)
+//        startForeground(1, keepServiceNotification)
         return super.onStartCommand(intent, START_FLAG_RETRY, startId)
     }
 
