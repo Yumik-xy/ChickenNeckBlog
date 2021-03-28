@@ -105,7 +105,7 @@ class MainActivity : BaseActivity() {
                         } else {
                             packageInfo.versionCode.toLong()
                         }
-                    if (version == -1L) version = versionCode
+                    if (version < versionCode) version = versionCode
                     if (version < data.versionCode) {
                         MaterialAlertDialogBuilder(this)
                             .setTitle("有更新！")
@@ -115,7 +115,7 @@ class MainActivity : BaseActivity() {
                                         "${data.description}\n" +
                                         "更新大小：${data.size}"
                             )
-                            .setNeutralButton("跳过这个版本") { _, _ ->
+                            .setNeutralButton("跳过") { _, _ ->
                                 version = data.versionCode
                             }
                             .setNegativeButton("取消") { _, _ -> }

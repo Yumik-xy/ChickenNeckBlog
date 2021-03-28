@@ -40,7 +40,6 @@ class MqttService : Service() {
     override fun onBind(intent: Intent): IBinder {
 //        startForeground(1, keepServiceNotification)
         return MqttBinder()
-//        throw UnsupportedOperationException("Not yet implemented")
     }
 
     override fun onCreate() {
@@ -63,9 +62,10 @@ class MqttService : Service() {
                     2, NotificationCompat.Builder(this@MqttService, "message_notice")
                         .setAutoCancel(true)
                         .setContentTitle("$payload")
-                        .setStyle(NotificationCompat.BigTextStyle().bigText("$message"))
+                        .setContentText("$message")
                         .setSmallIcon(R.drawable.ic_logo)
                         .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_logo))
+                        .setGroup("message_notice")
                         .build()
                 )
 
@@ -187,6 +187,7 @@ class MqttService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        notificationManager.cancelAll()
         stopForeground(true)
         try {
             if (::mqttAndroidClient.isInitialized) {
